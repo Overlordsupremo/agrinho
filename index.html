@@ -8,75 +8,69 @@
         * { box-sizing: border-box; user-select: none; }
         body { margin: 0; padding: 0; background-color: #244414; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
         
-        /* UI Superior de Canto (Estilo RPG Retro) */
-        #ui-top { position: absolute; top: 15px; left: 15px; background: #1a1510; color: #f4ecd8; padding: 15px; border-radius: 4px; border: 4px solid #b8860b; z-index: 10; min-width: 280px; box-shadow: 0 6px 0px #0c0a07; }
+        /* UI Superior */
+        #ui-top { position: absolute; top: 15px; left: 15px; background: #1a1510; color: #f4ecd8; padding: 15px; border-radius: 4px; border: 4px solid #b8860b; z-index: 100; min-width: 280px; box-shadow: 0 6px 0px #0c0a07; }
         #ui-top h2 { margin: 0 0 8px 0; color: #ffcc00; font-size: 18px; text-align: center; border-bottom: 2px dashed #443322; padding-bottom: 5px; text-transform: uppercase; }
         #ui-top p { margin: 6px 0; font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; }
         #shop-timer { color: #ff4444; font-size: 12px; font-weight: bold; margin-top: 8px; text-align: center; background: #2a1111; padding: 4px; border: 1px solid #551111; }
         #active-buffs { margin-top: 8px; font-size: 11px; color: #5cc8ff; line-height: 1.4; }
         
-        /* Botão de Mochila Estilizado */
+        /* Botão de Mochila */
         .btn-mochila { width: 100%; margin-top: 10px; background: #3a5fcd; color: white; border: 2px solid #284291; border-bottom-width: 5px; padding: 6px; font-weight: bold; cursor: pointer; font-size: 12px; font-family: inherit; text-transform: uppercase; }
         .btn-mochila:active { border-bottom-width: 2px; margin-top: 13px; margin-bottom: -3px; }
 
         /* Hotbar Pixel Art */
-        #hotbar-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; background: #221a15; padding: 8px; border: 4px solid #553311; border-radius: 2px; z-index: 20; box-shadow: 0 6px 0 #0c0a07; }
-        .hotbar-slot { width: 50px; height: 50px; background: #3d2d22; border: 3px solid #1f140e; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: all 0.1s; }
+        #hotbar-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; background: #221a15; padding: 8px; border: 4px solid #553311; border-radius: 2px; z-index: 100; box-shadow: 0 6px 0 #0c0a07; }
+        .hotbar-slot { width: 55px; height: 55px; background: #3d2d22; border: 3px solid #1f140e; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: all 0.1s; }
         .hotbar-slot.selected { border-color: #ffd700; background: #5a4535; transform: scale(1.05); }
         .hotbar-slot .slot-num { position: absolute; top: 1px; left: 3px; font-size: 10px; color: #887766; }
-        .hotbar-slot .slot-icon { font-size: 22px; margin-top: 2px; }
+        .hotbar-slot .slot-icon { font-size: 24px; margin-top: 2px; }
         .hotbar-slot .slot-qty { position: absolute; bottom: 1px; right: 3px; font-size: 11px; color: #ffd700; font-weight: bold; }
 
-        /* Mapa do Jogo Estilo Grid Verde Clássico */
-        #game-canvas { width: 100vw; height: 100vh; position: relative; background: #346c24; background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 32px 32px; }
+        /* Cenário / Tela */
+        #game-canvas { width: 100vw; height: 100vw; height: 100vh; position: absolute; top: 0; left: 0; background: #346c24; background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 32px 32px; z-index: 1; }
         
-        /* Entidades e Sprites */
-        .character { position: absolute; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
-        #player { background: #ffcc00; border: 3px solid #1a1510; border-radius: 4px; z-index: 5; font-size: 26px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+        /* Personagem visível forçado */
+        #player { position: absolute; width: 48px; height: 48px; background-color: #ffcc00; border: 3px solid #1a1510; border-radius: 50%; display: flex !important; align-items: center; justify-content: center; font-size: 28px; z-index: 50 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.4); text-align: center; line-height: 48px; }
         
-        .npc { font-size: 26px; z-index: 4; background: #2b4d75; border: 3px solid #1a1510; border-radius: 4px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+        .npc { position: absolute; width: 50px; height: 50px; font-size: 28px; z-index: 10; background: #2b4d75; border: 3px solid #1a1510; border-radius: 4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
         #npc-tiao { background: #3a6fa5; }
         #npc-mago { background: #6a329b; }
         #npc-hacker { background: #222222; border-color: #33ff33; }
         .npc-label { position: absolute; top: -28px; background: #1a1510; color: #f4ecd8; padding: 2px 6px; border: 2px solid #b8860b; font-size: 10px; font-weight: bold; white-space: nowrap; font-family: inherit; }
 
-        /* Zona de Cultivo Centralizada */
-        #farm-zones { position: absolute; top: 220px; left: 340px; display: flex; flex-wrap: wrap; gap: 12px; max-width: calc(100vw - 380px); }
+        /* Lotes de Terra */
+        #farm-zones { position: absolute; top: 220px; left: 340px; display: flex; flex-wrap: wrap; gap: 12px; max-width: calc(100vw - 380px); z-index: 5; }
         .plot { width: 84px; height: 84px; background: #50341c; border: 4px solid #2d1d0f; border-radius: 2px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6); }
         .plot:hover { border-color: #7bb842; }
         
-        /* Efeitos Visuais das Mutações (Aprimorados) */
-        .crop { font-size: 36px; animation: bobbing 1s infinite alternate ease-in-out; position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2; }
+        /* Efeitos Visuais */
+        .crop { font-size: 36px; animation: bobbing 1s infinite alternate ease-in-out; position: relative; display: flex; flex-direction: column; align-items: center; z-index: 6; }
         .crop.growing { filter: grayscale(70%) brightness(60%) scale(0.6); animation: none; }
         
-        /* Balanceamento Visual das Mutações */
         .crop.golden { filter: drop-shadow(0px 0px 8px #ffd700) brightness(1.2); }
         .crop.lightning { filter: drop-shadow(0px 0px 10px #33ccff) brightness(1.3); animation: glitch 0.2s infinite alternate; }
         .crop.frozen { filter: drop-shadow(0px 0px 8px #aaddff) saturate(0.6) brightness(1.1); }
         .crop.infernal { filter: drop-shadow(0px 0px 12px #ff3300) brightness(1.2); animation: glitch 0.4s infinite alternate; }
         .crop.toxic { filter: drop-shadow(0px 0px 6px #22ff22) grayscale(20%); }
         .crop.divine { filter: drop-shadow(0px 0px 16px #ff00ff) drop-shadow(0px 0px 4px #ffd700); }
-        
-        /* SEGUNDA MELHOR: Efeito de buraco negro/redemoinho da Mutação Cósmica */
         .crop.cosmic { filter: drop-shadow(0px 0px 14px #9400d3) drop-shadow(0px 0px 6px #00ffff); animation: spin 4s infinite linear; }
 
         @keyframes bobbing { 0% { transform: translateY(0px); } 100% { transform: translateY(-4px); } }
         @keyframes glitch { 0% { transform: skewX(-2deg) scale(0.97); } 100% { transform: skewX(2deg) scale(1.03); } }
         @keyframes spin { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.08); } 100% { transform: rotate(360deg) scale(1); } }
 
-        /* Barra de Progresso RPG */
         .timer-bar { position: absolute; bottom: 6px; left: 6px; width: calc(100% - 12px); height: 8px; background: #1a1510; border: 1px solid #443322; padding: 1px; }
-        .timer-fill { height: 100%; width: 0%; background: #4caf50; box-shadow: inset 0 1px 2px rgba(255,255,255,0.4); }
+        .timer-fill { height: 100%; width: 0%; background: #4caf50; }
 
-        /* Modais Retrô */
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #221a15; border: 4px solid #b8860b; padding: 20px; z-index: 100; width: 90%; max-width: 540px; box-shadow: 0 12px 0px #0c0a07; max-height: 85vh; overflow-y: auto; color: #f4ecd8; }
+        /* Modais */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #221a15; border: 4px solid #b8860b; padding: 20px; z-index: 200; width: 90%; max-width: 540px; box-shadow: 0 12px 0px #0c0a07; max-height: 85vh; overflow-y: auto; color: #f4ecd8; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #443322; padding-bottom: 10px; margin-bottom: 15px; }
         .modal-header h3 { margin: 0; color: #ffd700; text-transform: uppercase; font-size: 16px; }
         .close-btn { background: #a62b2b; color: white; border: 2px solid #551111; border-bottom-width: 4px; padding: 4px 10px; cursor: pointer; font-weight: bold; font-family: inherit; }
-        .close-btn:active { border-bottom-width: 2px; margin-top: 2px; }
         
         .shop-tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
-        .tab-btn { flex: 1; padding: 8px; background: #3d2d22; border: 2px solid #1f140e; color: #c4b5a3; cursor: pointer; font-weight: bold; font-size: 11px; font-family: inherit; text-transform: uppercase; }
+        .tab-btn { flex: 1; padding: 8px; background: #3d2d22; border: 2px solid #1f140e; color: #c4b5a3; cursor: pointer; font-weight: bold; font-family: inherit; text-transform: uppercase; }
         .tab-btn.active { background: #b8860b; color: #1a1510; border-color: #ffd700; }
 
         .shop-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
@@ -86,13 +80,12 @@
         .item-details p { margin: 2px 0; font-size: 11px; color: #bcaaa4; }
         .buy-btn { background: #38761d; color: white; border: 2px solid #1b3d0f; border-bottom-width: 4px; padding: 6px 12px; cursor: pointer; font-weight: bold; font-family: inherit; }
         .buy-btn:disabled { background: #444; border-color: #222; cursor: not-allowed; color: #777; }
-        .buy-btn:active:not(:disabled) { border-bottom-width: 2px; margin-top: 2px; }
         
         .adm-field { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
         .adm-field label { font-weight: bold; color: #33ff33; font-size: 11px; text-transform: uppercase; }
         .adm-field input, .adm-field select { padding: 6px; background: #111; border: 2px solid #33ff33; color: #00ff00; font-family: inherit; }
 
-        #holding-ui { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1a1510; color: #f4ecd8; padding: 6px 16px; border: 3px solid #38761d; font-weight: bold; display: none; z-index: 10; font-size: 12px; box-shadow: 0 4px 0 #0c0a07; }
+        #holding-ui { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1a1510; color: #f4ecd8; padding: 10px 16px; border: 3px solid #b8860b; font-weight: bold; z-index: 90; font-size: 12px; box-shadow: 0 4px 0 #0c0a07; border-radius: 4px; display: block; }
     </style>
 </head>
 <body>
@@ -100,7 +93,7 @@
     <div id="ui-top">
         <h2>Fazenda Agrinho</h2>
         <p><span>🪙 Moedas:</span> <span id="coin-count">150</span></p>
-        <p><span>🌱 Equipado:</span> <span id="selected-seed-text">Nenhum</span></p>
+        <p><span>🌱 Item na Mão:</span> <span id="selected-seed-text">Nenhum</span></p>
         <button class="btn-mochila" onclick="openBackpackModal()">🎒 Mochila [Space]</button>
         <div id="active-buffs"></div>
         <div id="shop-timer">Loja reestoca em: 03:00</div>
@@ -118,8 +111,8 @@
     </div>
 
     <div id="holding-ui">
-        Segurando: <span id="holding-item">Nada</span> 
-        <button onclick="sellHandItem()" style="margin-left:8px; background:#b8860b; color:#1a1510; border:none; padding:2px 6px; font-family:inherit; font-weight:bold; cursor:pointer;">Vender</button>
+        🏛️ Mercado de Vendas Geral (Clique para liquidar seu estoque colhido por moedas)
+        <button onclick="sellCollectedFruits()" style="margin-left:12px; background:#4caf50; color:white; border:2px solid #2e7d32; padding:4px 10px; font-family:inherit; font-weight:bold; cursor:pointer;">💵 VENDER TUDO DA HOTBAR</button>
     </div>
 
     <div id="game-canvas">
@@ -142,18 +135,26 @@
     </div>
 
     <script>
-        let player = { x: 250, y: 300, speed: 5, holding: null, activeHotbarSlot: 0 };
-        let gameState = { coins: 150, maxPlots: 6, speedMultiplier: 1.0, weightBonus: 0, mutationChance: 0.15, hackerUnlocked: false };
+        let player = { x: 250, y: 300, speed: 6 };
+        let gameState = { coins: 150, maxPlots: 6, speedMultiplier: 1.0, weightBonus: 0, mutationChance: 0.15, hackerUnlocked: false, activeHotbarSlot: 0 };
         let currentModalNPC = null;
         
+        // Inventário reserva da mochila
         let backpack = {
-            maca: 2, banana: 2, laranja: 0, morango: 0, melancia: 0, abacaxi: 0, 
-            uva: 0, coco: 0, kiwi: 0, cereja: 0, pitaya: 0, estelar: 0
+            maca_semente: 5, banana_semente: 3, laranja_semente: 0, morango_semente: 0, melancia_semente: 0, abacaxi_semente: 0, 
+            maca_fruta: 0, banana_fruta: 0, laranja_fruta: 0, morango_fruta: 0, melancia_fruta: 0, abacaxi_fruta: 0
         };
 
+        // Hotbar estruturada para aceitar sementes E também frutas colhidas
         let hotbar = [
-            { id: null, qty: 0 }, { id: null, qty: 0 }, { id: null, qty: 0 }, { id: null, qty: 0 },
-            { id: null, qty: 0 }, { id: null, qty: 0 }, { id: null, qty: 0 }, { id: null, qty: 0 }
+            { id: 'maca_semente', qty: 5, type: 'semente', data: null }, 
+            { id: 'banana_semente', qty: 3, type: 'semente', data: null }, 
+            { id: null, qty: 0, type: '', data: null }, 
+            { id: null, qty: 0, type: '', data: null },
+            { id: null, qty: 0, type: '', data: null }, 
+            { id: null, qty: 0, type: '', data: null }, 
+            { id: null, qty: 0, type: '', data: null }, 
+            { id: null, qty: 0, type: '', data: null }
         ];
 
         let keysPressed = {};
@@ -169,21 +170,14 @@
             laranja: { name: "Laranja", icon: "🍊", basePrice: 25, weightMin: 0.4, time: 8, chance: 95 },
             morango: { name: "Morango", icon: "🍓", basePrice: 35, weightMin: 0.05, time: 12, chance: 85 },
             melancia: { name: "Melancia", icon: "🍉", basePrice: 50, weightMin: 2.0, time: 16, chance: 75 },
-            abacaxi: { name: "Abacaxi", icon: "🍍", basePrice: 65, weightMin: 1.2, time: 20, chance: 65 },
-            uva: { name: "Uva", icon: "🍇", basePrice: 80, weightMin: 0.5, time: 24, chance: 55 },
-            coco: { name: "Coco", icon: "🥥", basePrice: 110, weightMin: 1.5, time: 30, chance: 45 },
-            kiwi: { name: "Kiwi", icon: "🥝", basePrice: 130, weightMin: 0.1, time: 35, chance: 35 },
-            cereja: { name: "Cereja", icon: "🍒", basePrice: 160, weightMin: 0.02, time: 40, chance: 25 },
-            pitaya: { name: "Pitaya", icon: "🐲", basePrice: 210, weightMin: 0.6, time: 50, chance: 15 },
-            estelar: { name: "Estelar", icon: "🌌", basePrice: 350, weightMin: 1.0, time: 60, chance: 8 }
+            abacaxi: { name: "Abacaxi", icon: "🍍", basePrice: 65, weightMin: 1.2, time: 20, chance: 65 }
         };
 
         const upgrades = [
             { id: 'expand', name: 'Expandir Lote (+1 Terreno)', cost: 150, type: 'perm', action: () => { gameState.maxPlots++; createPlots(); } },
             { id: 'vitamin', name: 'Vitaminas Orgânicas (+600g peso)', cost: 220, type: 'perm', action: () => { gameState.weightBonus += 0.6; } },
-            
             { id: 'fert_ruim', name: '💩 Adubo Estrume (+0.2x Vel)', cost: 15, type: 'buff', duration: 60, speed: 0.8, buffKey: 'Ruim', noStack: false },
-            { id: 'fert_normal', name: '🧪 Fertilizante Comum (+0.5x Vel)', cost: 45, type: 'buff', duration:120, speed: 0.5, buffKey: 'Normal', noStack: false },
+            { id: 'fert_normal', name: '🧪 Fertilizante Comum (+0.5x Vel)', cost: 45, type: 'buff', duration: 120, speed: 0.5, buffKey: 'Normal', noStack: false },
             { id: 'fert_super', name: '⚡ Hiper-Nutriente (+2.0x Vel)', cost: 120, type: 'buff', duration: 15, speed: 0.2, buffKey: 'Super', noStack: true }
         ];
 
@@ -194,18 +188,13 @@
             { id: 'potion_divine', name: 'Bênção Suprema Divina (100% Divino)', cost: 500, duration: 20, type: 'magic_buff', buffKey: 'ForceDivine', label: '👑 Aura Divina' }
         ];
 
-        // INICIALIZAÇÃO SEGURA DO FAZENDEIRO E JOGO
         function init() {
             createPlots();
             refreshShopSeeds();
             updateUI();
-            
-            // Move as primeiras sementes da mochila para a hotbar para o jogador começar jogando
-            moveBackpackToHotbar('maca');
-            moveBackpackToHotbar('banana');
             updateHotbarVisuals();
 
-            // Loop de tempo dos estoques da loja
+            // Loop do estoque da Loja
             setInterval(() => {
                 shopTimer--;
                 if (shopTimer <= 0) { refreshShopSeeds(); shopTimer = 180; }
@@ -213,7 +202,7 @@
                 document.getElementById('shop-timer').innerText = `Loja reestoca em: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }, 1000);
 
-            // Loop de atualização das plantas (200ms)
+            // Loop de crescimento das plantas
             setInterval(() => {
                 let currentSpeedMod = 1.0;
                 let activeBuffDescriptions = [];
@@ -265,7 +254,7 @@
                 });
             }, 200);
 
-            // Gerenciador de Input / Teclado
+            // Controles
             window.addEventListener('keydown', e => {
                 if (e.code === 'Space') {
                     e.preventDefault();
@@ -279,21 +268,38 @@
             });
             window.addEventListener('keyup', e => { keysPressed[e.key.toLowerCase()] = false; });
 
-            // Inicia o Loop de Render
             gameLoop();
         }
 
-        function addSeedToInventory(seedKey) {
+        // Função interna para injetar itens coletados na barra ou mochila automaticamente
+        function addItemToCollectedHotbar(itemKey, type, dataBlock) {
+            // Tenta juntar em slot existente idêntico
             for (let i = 0; i < 8; i++) {
-                if (hotbar[i].id === seedKey) { hotbar[i].qty++; return; }
+                if (hotbar[i].id === itemKey && hotbar[i].type === type) {
+                    if (type === 'fruta') {
+                        hotbar[i].data.qty++;
+                        hotbar[i].data.price += dataBlock.price;
+                        hotbar[i].data.weight += dataBlock.weight;
+                    }
+                    hotbar[i].qty++;
+                    return;
+                }
             }
+            // Procura por slot vago
             for (let i = 0; i < 8; i++) {
-                if (hotbar[i].id === null) { hotbar[i].id = seedKey; hotbar[i].qty = 1; return; }
+                if (hotbar[i].id === null) {
+                    hotbar[i].id = itemKey;
+                    hotbar[i].qty = 1;
+                    hotbar[i].type = type;
+                    hotbar[i].data = dataBlock ? { ...dataBlock, qty: 1 } : null;
+                    return;
+                }
             }
-            backpack[seedKey]++;
+            // Se cheia, envia para a mochila invisível
+            if (!backpack[itemKey]) backpack[itemKey] = 0;
+            backpack[itemKey]++;
         }
 
-        // NOVO BALANCEAMENTO: MUTAÇÃO CÓSMICA ATUALIZADA COMO A SEGUNDA MELHOR
         function generateMutation() {
             if (activeBuffs['ForceDivine'] && activeBuffs['ForceDivine'] > 0) return 'divine';
             if (activeBuffs['ForceFrozen'] && activeBuffs['ForceFrozen'] > 0) return 'frozen';
@@ -310,8 +316,8 @@
                 if (subRoll < 0.70) return 'lightning';
                 if (subRoll < 0.85) return 'frozen';
                 if (subRoll < 0.93) return 'infernal';
-                if (subRoll < 0.98) return 'cosmic'; // Agora super rara e valiosa!
-                return 'divine'; // A melhor absoluta do jogo
+                if (subRoll < 0.98) return 'cosmic'; // Segunda melhor do jogo
+                return 'divine'; 
             }
             return null;
         }
@@ -358,7 +364,7 @@
         }
 
         function selectSlot(index) {
-            player.activeHotbarSlot = index;
+            gameState.activeHotbarSlot = index;
             document.querySelectorAll('.hotbar-slot').forEach((s, idx) => s.classList.toggle('selected', idx === index));
             updateUI();
         }
@@ -368,8 +374,14 @@
                 let slot = document.getElementById(`slot-${i}`);
                 let item = hotbar[i];
                 if (item && item.id) {
-                    slot.querySelector('.slot-icon').innerText = fruitData[item.id].icon;
-                    slot.querySelector('.slot-qty').innerText = item.qty;
+                    let baseKey = item.id.split('_')[0];
+                    if (item.type === 'semente') {
+                        slot.querySelector('.slot-icon').innerText = fruitData[baseKey].icon;
+                        slot.querySelector('.slot-qty').innerText = "🌱" + item.qty;
+                    } else {
+                        slot.querySelector('.slot-icon').innerText = item.data.icon;
+                        slot.querySelector('.slot-qty').innerText = "x" + item.qty;
+                    }
                 } else {
                     slot.querySelector('.slot-icon').innerText = '';
                     slot.querySelector('.slot-qty').innerText = '';
@@ -377,45 +389,58 @@
             }
         }
 
+        // ALTERAÇÃO COMPLETA DE COLHEITA AUTOMÁTICA PARA HOTBAR
         function handlePlotInteraction(index) {
             let plot = plots[index];
-            let activeSlotItem = hotbar[player.activeHotbarSlot];
+            let activeSlotItem = hotbar[gameState.activeHotbarSlot];
 
-            if (plot.status === 'empty' && activeSlotItem && activeSlotItem.id && activeSlotItem.qty > 0) {
+            // Plantar sementes
+            if (plot.status === 'empty' && activeSlotItem && activeSlotItem.type === 'semente' && activeSlotItem.qty > 0) {
                 plot.status = 'growing';
-                plot.fruit = activeSlotItem.id;
+                plot.fruit = activeSlotItem.id.split('_')[0];
                 plot.timer = fruitData[plot.fruit].time * gameState.speedMultiplier;
                 plot.mutationType = generateMutation();
                 plot.weight = (Math.random() * 1.5 + fruitData[plot.fruit].weightMin) + gameState.weightBonus;
 
                 activeSlotItem.qty--;
-                if (activeSlotItem.qty <= 0) { activeSlotItem.id = null; activeSlotItem.qty = 0; }
+                if (activeSlotItem.qty <= 0) { activeSlotItem.id = null; activeSlotItem.qty = 0; activeSlotItem.type = ''; }
 
                 renderPlotAsset(plot);
                 updateUI();
                 updateHotbarVisuals();
-            } else if (plot.status === 'ready' && !player.holding) {
-                let mult = 1.0, mutName = "";
+            } 
+            // Colher Fruta Direto pra Hotbar/Mochila (Não fica preso na mão)
+            else if (plot.status === 'ready') {
+                let mult = 1.0, mutName = "", finalIcon = fruitData[plot.fruit].icon;
                 
-                if (plot.mutationType === 'toxic') { mult = 0.5; mutName = "☣️ Tóxico"; }
-                if (plot.mutationType === 'golden') { mult = 2.5; mutName = "✨ Dourado"; }
-                if (plot.mutationType === 'lightning') { mult = 4.0; mutName = "⚡ Elétrico"; }
-                if (plot.mutationType === 'frozen') { mult = 5.5; mutName = "❄️ Congelado"; }
-                if (plot.mutationType === 'infernal') { mult = 7.5; mutName = "🔥 Infernal"; }
-                // CÓSMICA BALANCEADA COMO SEGUNDA MELHOR (Multiplicador 10.0x)
-                if (plot.mutationType === 'cosmic') { mult = 10.0; mutName = "🌌 Cósmico"; }
-                if (plot.mutationType === 'divine') { mult = 15.0; mutName = "👑 Divino"; }
+                if (plot.mutationType === 'toxic') { mult = 0.5; mutName = "Tóxica"; }
+                if (plot.mutationType === 'golden') { mult = 2.5; mutName = "Dourada"; }
+                if (plot.mutationType === 'lightning') { mult = 4.0; mutName = "Elétrica"; }
+                if (plot.mutationType === 'frozen') { mult = 5.5; mutName = "Congelada"; }
+                if (plot.mutationType === 'infernal') { mult = 7.5; mutName = "Infernal"; }
+                if (plot.mutationType === 'cosmic') { mult = 10.0; mutName = "Cósmica"; } // 10x Valor - Segunda melhor
+                if (plot.mutationType === 'divine') { mult = 15.0; mutName = "Divina"; }
 
-                player.holding = {
+                let calculatedPrice = fruitData[plot.fruit].basePrice * mult * plot.weight;
+                let fruitUniqueKey = `${plot.fruit}_fruta`;
+
+                let colheitaInfo = {
                     id: plot.fruit,
-                    name: `${mutName} ${fruitData[plot.fruit].name}`,
+                    fullName: mutName ? `${fruitData[plot.fruit].name} (${mutName})` : fruitData[plot.fruit].name,
                     weight: plot.weight,
-                    price: fruitData[plot.fruit].basePrice * mult * plot.weight
+                    price: calculatedPrice,
+                    icon: finalIcon
                 };
 
+                // Adiciona na Hotbar ativa/vaga ou guarda na mochila reserva caso lotado
+                addItemToCollectedHotbar(fruitUniqueKey, 'fruta', colheitaInfo);
+
+                // Reseta o terreno limpo
                 plot.status = 'empty'; plot.fruit = null; plot.mutationType = null;
                 plot.element.innerHTML = `<span style="color:#2d1d0f; font-size:10px; position:absolute; bottom:4px; font-weight:bold;">Terra</span>`;
+                
                 updateUI();
+                updateHotbarVisuals();
             }
         }
 
@@ -425,26 +450,52 @@
                 let roll = Math.random() * 100;
                 if (roll <= fruitData[key].chance) {
                     currentStoreSeeds.push(key);
-                    shopStock[key] = Math.floor(Math.random() * 5) + 1;
+                    shopStock[key] = Math.floor(Math.random() * 5) + 3;
                 }
             });
-            if(currentStoreSeeds.length < 3) currentStoreSeeds = ['maca', 'banana', 'laranja'];
         }
 
         function updateUI() {
             document.getElementById('coin-count').innerText = Math.floor(gameState.coins);
-            let item = hotbar[player.activeHotbarSlot];
+            let item = hotbar[gameState.activeHotbarSlot];
             if(item && item.id) {
-                document.getElementById('selected-seed-text').innerText = `${fruitData[item.id].name} (${item.qty})`;
+                let baseKey = item.id.split('_')[0];
+                if (item.type === 'semente') {
+                    document.getElementById('selected-seed-text').innerText = `Semente de ${fruitData[baseKey].name} (${item.qty})`;
+                } else {
+                    document.getElementById('selected-seed-text').innerText = `${item.data.fullName} [Pronta p/ Venda]`;
+                }
             } else {
                 document.getElementById('selected-seed-text').innerText = "Mão Vazia";
             }
+        }
 
-            if(player.holding) {
-                document.getElementById('holding-ui').style.display = 'block';
-                document.getElementById('holding-item').innerText = `${player.holding.name} (${player.holding.weight.toFixed(2)} Kg) -> ${Math.floor(player.holding.price)}🪙`;
+        // Líquida todas as frutas armazenadas na Hotbar e converte em dinheiro instantâneo
+        function sellCollectedFruits() {
+            let totalProfit = 0;
+            for (let i = 0; i < 8; i++) {
+                if (hotbar[i] && hotbar[i].type === 'fruta') {
+                    totalProfit += hotbar[i].data.price;
+                    hotbar[i] = { id: null, qty: 0, type: '', data: null };
+                }
+            }
+            
+            // Liquida as da mochila também
+            Object.keys(backpack).forEach(key => {
+                if (key.endsWith('_fruta') && backpack[key] > 0) {
+                    let base = key.split('_')[0];
+                    totalProfit += (fruitData[base].basePrice * 1.2) * backpack[key];
+                    backpack[key] = 0;
+                }
+            });
+
+            if (totalProfit > 0) {
+                gameState.coins += totalProfit;
+                alert(`💰 Mercado Pago: Você vendeu toda a sua colheita por +${Math.floor(totalProfit)} moedas!`);
+                updateUI();
+                updateHotbarVisuals();
             } else {
-                document.getElementById('holding-ui').style.display = 'none';
+                alert("❌ Você não possui nenhuma fruta colhida para vender nos seus slots rápidos da barra!");
             }
         }
 
@@ -483,7 +534,7 @@
             } else if (npcType === 'hacker') {
                 title.innerText = "Mainframe Hacker Terminal";
                 if (!gameState.hackerUnlocked) {
-                    let pass = prompt("Insira a chave criptográfica de acesso:");
+                    let pass = prompt("Insira a chave criptográfica:");
                     if (pass === "agrinho2026") { gameState.hackerUnlocked = true; renderHackerPanel(); }
                     else { alert("Acesso Negado."); closeModal(); }
                 } else { renderHackerPanel(); }
@@ -496,7 +547,7 @@
             let tabs = document.getElementById('modal-tabs');
             modal.style.display = 'block';
             tabs.innerHTML = ''; 
-            title.innerText = "🎒 Inventário do Bolso (Mochila)";
+            title.innerText = "🎒 Inventário Completo da Mochila";
             currentModalNPC = 'mochila';
             renderBackpackManagement();
         }
@@ -513,12 +564,12 @@
                         <div class="shop-item">
                             <div class="item-info"><span class="item-icon">${item.icon}</span>
                             <div class="item-details"><strong>Semente de ${item.name}</strong><p>Preço: ${cost}🪙 | Prateleira: ${st}</p></div></div>
-                            <button class="buy-btn" ${st <= 0 ? 'disabled':''} onclick="buyItem('seed','${k}',${cost})">Comprar</button>
+                            <button class="buy-btn" ${st <= 0 ? 'disabled':''} onclick="buyItem('seed','${k}_semente',${cost})">Comprar</button>
                         </div>`;
                 });
             } else {
                 upgrades.forEach((up, idx) => {
-                    let desc = up.type === 'buff' ? `Vel: ${up.speed}x | Tempo: ${up.duration}s` : `Expansão definitiva de infraestrutura`;
+                    let desc = up.type === 'buff' ? `Vel: ${up.speed}x | Tempo: ${up.duration}s` : `Aumenta terrenos agrícolas`;
                     content.innerHTML += `
                         <div class="shop-item">
                             <div class="item-info"><span class="item-icon">⚙️</span>
@@ -533,11 +584,10 @@
             let content = document.getElementById('modal-content');
             content.innerHTML = '';
             magicItems.forEach((m, idx) => {
-                let mDesc = m.id === 'potion_cosmic' ? 'Aumenta exponencialmente a probabilidade de mutações em geral.' : 'Sintoniza a terra para gerar 100% desta mutação.';
                 content.innerHTML += `
                     <div class="shop-item">
                         <div class="item-info"><span class="item-icon">🔮</span>
-                        <div class="item-details"><strong>${m.name}</strong><p>${mDesc}<br>Efeito: ${m.duration}s | Altar: ${m.cost}🪙</p></div></div>
+                        <div class="item-details"><strong>${m.name}</strong><p>Duração efeito ativo: ${m.duration}s | Altar: ${m.cost}🪙</p></div></div>
                         <button class="buy-btn" style="background:#6a329b; border-color:#3c165a;" onclick="buyItem('magic',${idx},${m.cost})">Conjurar</button>
                     </div>`;
             });
@@ -545,130 +595,57 @@
 
         function renderBackpackManagement() {
             let content = document.getElementById('modal-content');
-            content.innerHTML = `<h4>🎒 Sementes na Mochila de Reserva:</h4><p style="font-size:11px; color:#aaa; margin-bottom:12px;">Transfira sementes guardadas diretamente para os atalhos da sua Hotbar activa.</p>`;
+            content.innerHTML = `<h4>🎒 Insumos na Mochila de Reserva:</h4>`;
             
             let hasItems = false;
             Object.keys(backpack).forEach(key => {
                 let qty = backpack[key];
                 if(qty > 0) {
                     hasItems = true;
+                    let displayLabel = key.endsWith('_semente') ? "Sementes de " + fruitData[key.split('_')[0]].name : "Fruta Colhida: " + fruitData[key.split('_')[0]].name;
+                    let displayIcon = fruitData[key.split('_')[0]].icon;
                     content.innerHTML += `
                         <div class="shop-item">
-                            <div class="item-info"><span class="item-icon">${fruitData[key].icon}</span>
-                            <div class="item-details"><strong>Sementes de ${fruitData[key].name}</strong><p>Volume guardado: ${qty} un</p></div></div>
+                            <div class="item-info"><span class="item-icon">${displayIcon}</span>
+                            <div class="item-details"><strong>${displayLabel}</strong><p>Volume guardado: ${qty} un</p></div></div>
                             <button class="buy-btn" style="background:#3a5fcd; border-color:#284291;" onclick="moveBackpackToHotbar('${key}')">Sacar p/ Hotbar</button>
                         </div>`;
                 }
             });
 
-            if(!hasItems) content.innerHTML += `<p style="color:#ff4444; font-size:12px;">Nenhum insumo sobressalente guardado na mochila.</p>`;
+            if(!hasItems) content.innerHTML += `<p style="color:#ff4444; font-size:12px;">Mochila vazia.</p>`;
+        }
 
-            content.innerHTML += `<hr style="border:1px dashed #443322; margin:15px 0;"><h4 style="color:#ffd700;">📥 Armazenar itens da Hotbar de volta no Bolso:</h4>`;
-            for(let i=0; i<8; i++) {
-                let item = hotbar[i];
-                if(item.id) {
-                    content.innerHTML += `
-                        <div style="display:flex; justify-content:space-between; align-items:center; background:#2d2017; padding:8px; margin-bottom:5px; border:1px solid #3d2d22;">
-                            <span style="font-size:12px;"><b>Slot ${i+1}:</b> ${fruitData[item.id].icon} (x${item.qty})</span>
-                            <button class="close-btn" style="padding:2px 6px; font-size:10px;" onclick="moveHotbarToBackpack(${i})">Guardar Tudo</button>
-                        </div>`;
+        function moveBackpackToHotbar(itemKey) {
+            if (backpack[itemKey] > 0) {
+                backpack[itemKey]--;
+                let isSemente = itemKey.endsWith('_semente');
+                if (isSemente) {
+                    addItemToCollectedHotbar(itemKey, 'semente', null);
+                } else {
+                    let base = itemKey.split('_')[0];
+                    addItemToCollectedHotbar(itemKey, 'fruta', { id: base, fullName: fruitData[base].name, weight: 1.0, price: fruitData[base].basePrice, icon: fruitData[base].icon });
                 }
-            }
-        }
-
-        function moveBackpackToHotbar(seedKey) {
-            if (backpack[seedKey] > 0) {
-                backpack[seedKey]--;
-                addSeedToInventory(seedKey);
                 updateHotbarVisuals();
                 updateUI();
                 if(currentModalNPC === 'mochila') renderBackpackManagement();
             }
-        }
-
-        function moveHotbarToBackpack(slotIdx) {
-            let item = hotbar[slotIdx];
-            if(item.id) {
-                backpack[item.id] += item.qty;
-                item.id = null; item.qty = 0;
-                updateHotbarVisuals();
-                updateUI();
-                if(currentModalNPC === 'mochila') renderBackpackManagement();
-            }
-        }
-
-        function renderHackerPanel() {
-            let content = document.getElementById('modal-content');
-            let fRuim = upgrades.find(u => u.id === 'fert_ruim');
-            let fNormal = upgrades.find(u => u.id === 'fert_normal');
-            let fSuper = upgrades.find(u => u.id === 'fert_super');
-
-            content.innerHTML = `
-                <div style="border-bottom: 2px solid #00ff00; padding-bottom:4px; margin-bottom:10px; color:#00ff00; font-weight:bold; font-size:12px;">[ATRIBUTOS GLOBAIS DE SISTEMA]</div>
-                <div class="adm-field"><label>Saldo Monetário do Jogador:</label><input type="number" id="h-coins" value="${gameState.coins}"></div>
-                <div class="adm-field"><label>Velocidade Vetorial do Jogador:</label><input type="number" id="h-speed" value="${player.speed}"></div>
-                <div class="adm-field"><label>Limite Alocado de Terrenos:</label><input type="number" id="h-plots" value="${gameState.maxPlots}"></div>
-                <div class="adm-field"><label>Taxa de Mutação Genética (0.0 a 1.0):</label><input type="number" id="h-mutation" value="${gameState.mutationChance}" step="0.05"></div>
-                
-                <div style="border-bottom: 2px solid #00ff00; padding-bottom:4px; margin-top:10px; margin-bottom:10px; color:#00ff00; font-weight:bold; font-size:12px;">[MODIFICADORES DE INSULINA DO ADUBO]</div>
-                <div style="display:flex; gap:10px;">
-                    <div class="adm-field" style="flex:1;"><label>Duração Ruim:</label><input type="number" id="h-ruim-dur" value="${fRuim.duration}"></div>
-                    <div class="adm-field" style="flex:1;"><label>Vel Ruim:</label><input type="number" id="h-ruim-sp" value="${fRuim.speed}"></div>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <div class="adm-field" style="flex:1;"><label>Duração Normal:</label><input type="number" id="h-norm-dur" value="${fNormal.duration}"></div>
-                    <div class="adm-field" style="flex:1;"><label>Vel Normal:</label><input type="number" id="h-norm-sp" value="${fNormal.speed}"></div>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <div class="adm-field" style="flex:1;"><label>Duração Super:</label><input type="number" id="h-super-dur" value="${fSuper.duration}"></div>
-                    <div class="adm-field" style="flex:1;"><label>Vel Super:</label><input type="number" id="h-super-sp" value="${fSuper.speed}"></div>
-                </div>
-
-                <div style="border-bottom: 2px solid #00ff00; padding-bottom:4px; margin-top:10px; margin-bottom:10px; color:#00ff00; font-weight:bold; font-size:12px;">[INJEÇÃO FORÇADA DE SEVERIDADE]</div>
-                <div class="adm-field">
-                    <select id="h-type">${Object.keys(fruitData).map(k=>`<option value="${k}">${fruitData[k].name}</option>`).join('')}</select>
-                    <input type="number" id="h-qty" value="0" placeholder="Quantidade">
-                </div>
-                <button class="buy-btn" style="background:#111; color:#00ff00; border-color:#00ff00;" onclick="executeHackerCheats()">INJETAR PARÂMETROS</button>
-            `;
-        }
-
-        function executeHackerCheats() {
-            gameState.coins = parseFloat(document.getElementById('h-coins').value) || gameState.coins;
-            player.speed = parseFloat(document.getElementById('h-speed').value) || player.speed;
-            gameState.maxPlots = parseInt(document.getElementById('h-plots').value) || gameState.maxPlots;
-            gameState.mutationChance = parseFloat(document.getElementById('h-mutation').value) || gameState.mutationChance;
-
-            let fRuim = upgrades.find(u => u.id === 'fert_ruim');
-            let fNormal = upgrades.find(u => u.id === 'fert_normal');
-            let fSuper = upgrades.find(u => u.id === 'fert_super');
-
-            fRuim.duration = parseInt(document.getElementById('h-ruim-dur').value) || fRuim.duration;
-            fRuim.speed = parseFloat(document.getElementById('h-ruim-sp').value) || fRuim.speed;
-            fNormal.duration = parseInt(document.getElementById('h-norm-dur').value) || fNormal.duration;
-            fNormal.speed = parseFloat(document.getElementById('h-norm-sp').value) || fNormal.speed;
-            fSuper.duration = parseInt(document.getElementById('h-super-dur').value) || fSuper.duration;
-            fSuper.speed = parseFloat(document.getElementById('h-super-sp').value) || fSuper.speed;
-
-            let qty = parseInt(document.getElementById('h-qty').value) || 0;
-            let type = document.getElementById('h-type').value;
-            for(let i=0; i<qty; i++) { addSeedToInventory(type); }
-            
-            createPlots(); updateUI(); updateHotbarVisuals(); closeModal();
         }
 
         function buyItem(type, target, cost) {
             if (gameState.coins >= cost) {
-                if (type === 'seed' && shopStock[target] > 0) {
-                    shopStock[target]--;
-                    addSeedToInventory(target);
-                    renderTiaoShop('seeds');
+                if (type === 'seed') {
+                    let baseKey = target.split('_')[0];
+                    if (shopStock[baseKey] > 0) {
+                        shopStock[baseKey]--;
+                        addItemToCollectedHotbar(target, 'semente', null);
+                        renderTiaoShop('seeds');
+                    }
                 } else if (type === 'upgrade') {
                     let up = upgrades[target];
                     if(up.type === 'buff') {
                         if(!activeBuffs[up.buffKey]) activeBuffs[up.buffKey] = 0;
-                        if(up.noStack) activeBuffs[up.buffKey] = up.duration;
-                        else activeBuffs[up.buffKey] += up.duration;
+                        activeBuffs[up.buffKey] += up.duration;
                     } else { up.action(); }
                     renderTiaoShop('upgrades');
                 } else if (type === 'magic') {
@@ -681,28 +658,27 @@
             }
         }
 
-        function sellHandItem() {
-            if (player.holding) { gameState.coins += player.holding.price; player.holding = null; updateUI(); }
-        }
         function closeModal() { document.getElementById('game-modal').style.display = 'none'; currentModalNPC = null; }
 
-        // LOOP DE CORRIDA RETIFICADO (Personagem 100% Visível)
+        // Game loop com render do jogador corrigido e forçado em tempo de execução
         function gameLoop() {
             if (keysPressed['a'] || keysPressed['arrowleft']) player.x -= player.speed;
             if (keysPressed['d'] || keysPressed['arrowright']) player.x += player.speed;
             if (keysPressed['w'] || keysPressed['arrowup']) player.y -= player.speed;
             if (keysPressed['s'] || keysPressed['arrowdown']) player.y += player.speed;
             
-            player.x = Math.max(0, Math.min(window.innerWidth - 48, player.x));
-            player.y = Math.max(0, Math.min(window.innerHeight - 48, player.y));
+            player.x = Math.max(0, Math.min(window.innerWidth - 50, player.x));
+            player.y = Math.max(0, Math.min(window.innerHeight - 50, player.y));
 
-            document.getElementById('player').style.left = player.x + 'px';
-            document.getElementById('player').style.top = player.y + 'px';
+            let pEl = document.getElementById('player');
+            if (pEl) {
+                pEl.style.left = player.x + 'px';
+                pEl.style.top = player.y + 'px';
+            }
 
             requestAnimationFrame(gameLoop);
         }
 
-        // Carregamento Seguro
         window.onload = init;
     </script>
 </body>
