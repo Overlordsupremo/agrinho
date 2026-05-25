@@ -3,60 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fazendinha do Agrinho</title>
+    <title>Fazendinha do Agrinho Premium</title>
     <style>
         * { box-sizing: border-box; user-select: none; }
         body { margin: 0; padding: 0; background-color: #2e5c1e; font-family: 'Arial', sans-serif; overflow: hidden; }
         
         /* UI Principal */
-        #ui-top { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 15px; border-radius: 10px; border: 3px solid #ffd700; z-index: 10; min-width: 200px; }
-        #ui-top h2 { margin: 0 0 5px 0; color: #5cb85c; font-size: 20px; }
-        #ui-top p { margin: 5px 0; font-size: 16px; font-weight: bold; }
-        
+        #ui-top { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 10px; border: 3px solid #ffd700; z-index: 10; min-width: 250px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        #ui-top h2 { margin: 0 0 5px 0; color: #5cb85c; font-size: 20px; text-align: center; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        #ui-top p { margin: 6px 0; font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; }
+        #shop-timer { color: #ff5555; font-size: 12px; font-weight: bold; margin-top: 5px; text-align: center; background: rgba(255,0,0,0.1); padding: 2px; border-radius: 3px; }
+        #active-buffs { margin-top: 5px; font-size: 11px; color: #5cc8ff; }
+
         /* Tabuleiro do Jogo */
         #game-canvas { width: 100vw; height: 100vh; position: relative; background: #4a7c3a; background-image: radial-gradient(#558c44 20%, transparent 20%), radial-gradient(#558c44 20%, transparent 20%); background-size: 40px 40px; background-position: 0 0, 20px 20px; }
         
         /* Personagens */
-        .character { position: absolute; width: 45px; height: 45px; border-radius: 50%; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 4px 5px rgba(0,0,0,0.3); }
+        .character { position: absolute; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 4px 5px rgba(0,0,0,0.3); }
         #player { background: #ffcc00; border: 3px solid #ff9900; z-index: 5; font-size: 24px; }
         #npc { background: #337ab7; border: 3px solid #2e6da4; top: 150px; left: 150px; z-index: 4; font-size: 24px; }
         .npc-label { position: absolute; top: -25px; background: white; color: black; padding: 2px 5px; border-radius: 5px; font-size: 12px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
         /* Lotes de Terra */
-        #farm-zones { position: absolute; top: 100px; left: 400px; display: grid; grid-template-columns: repeat(3, 100px); gap: 15px; }
-        .plot { width: 100px; height: 100px; background: #654321; border: 4px solid #4a3018; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-        .plot.ready-to-plant { border-color: #8bc34a; }
+        #farm-zones { position: absolute; top: 100px; left: 450px; display: grid; grid-template-columns: repeat(3, 100px); gap: 15px; }
+        .plot { width: 100px; height: 100px; background: #654321; border: 4px solid #4a3018; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); transition: border-color 0.2s; }
+        .plot:hover { border-color: #8bc34a; }
         
         /* Frutas e Plantas */
         .crop { font-size: 40px; animation: pulse 1s infinite alternate; position: relative; display: flex; flex-direction: column; align-items: center; }
-        .crop.growing { filter: grayscale(50%) brightness(70%) scale(0.6); }
-        .crop.golden { filter: drop-shadow(0px 0px 10px #ffd700) brightness(1.2); }
+        .crop.growing { filter: grayscale(50%) brightness(70%) scale(0.6); animation: none; }
+        .crop.golden { filter: drop-shadow(0px 0px 12px #ffd700) brightness(1.3); }
         .timer-bar { position: absolute; bottom: -10px; left: 0; width: 100%; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
-        .timer-fill { height: 100%; width: 0%; background: #4caf50; transition: width 0.1s linear; }
+        .timer-fill { height: 100%; width: 0%; background: #4caf50; }
 
-        /* Lojas e Telas (Modais) */
+        /* Modais de Loja e Adm */
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 4px solid #4a3018; border-radius: 15px; padding: 20px; z-index: 100; width: 90%; max-width: 550px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 85vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
         .modal-header h3 { margin: 0; color: #4a3018; }
         .close-btn { background: #d9534f; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         
-        .shop-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 10px; background: #f0f0f0; border: 1px solid #ccc; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        .shop-tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab-btn { flex: 1; min-width: 100px; padding: 8px; background: #f0f0f0; border: 1px solid #ccc; cursor: pointer; font-weight: bold; border-radius: 5px; font-size: 12px; }
         .tab-btn.active { background: #5cb85c; color: white; border-color: #4cae4c; }
 
         .shop-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
         .shop-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 2px solid #f0f0f0; border-radius: 8px; background: #fafafa; }
-        .shop-item:hover { border-color: #5cb85c; }
         .item-info { display: flex; align-items: center; gap: 10px; }
         .item-icon { font-size: 30px; }
         .item-details p { margin: 2px 0; font-size: 12px; color: #666; }
         .item-details strong { font-size: 15px; color: #333; }
         .buy-btn { background: #5cb85c; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .buy-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .stock-label { font-size: 11px; color: #ff6600; font-weight: bold; }
         
+        /* Painel de Administração */
+        .adm-field { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
+        .adm-field label { font-weight: bold; color: #333; font-size: 14px; }
+        .adm-field input, .adm-field select { padding: 8px; border: 2px solid #ccc; border-radius: 5px; font-size: 14px; }
+        .adm-btn { background: #d9534f; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .adm-btn:hover { background: #c9302c; }
+
         /* Notificações e Mão */
-        #holding-ui { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; display: none; z-index: 10; border: 2px solid #5cb85c; }
-        #shop-timer { color: #ff3333; font-size: 13px; font-weight: bold; margin-top: 2px; }
+        #holding-ui { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; display: none; z-index: 10; border: 2px solid #5cb85c; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
         @keyframes pulse { 0% { transform: scale(0.95); } 100% { transform: scale(1.05); } }
     </style>
@@ -65,72 +73,89 @@
 
     <div id="ui-top">
         <h2>Fazenda Agrinho</h2>
-        <p>🪙 Moedas: <span id="coin-count">100</span></p>
-        <p>🌱 Semente Atual: <span id="selected-seed">Nenhuma</span> (<span id="seed-qty">0</span>)</p>
+        <p><span>🪙 Moedas:</span> <span id="coin-count">100</span></p>
+        <p><span>🌱 Equipado:</span> <span id="selected-seed">Nenhuma</span></p>
+        <div id="active-buffs"></div>
         <div id="shop-timer">Loja atualiza em: 03:00</div>
     </div>
 
-    <div id="holding-ui">Segurando: <span id="holding-item">Nada</span> <button onclick="sellHandItem()" style="margin-left:10px; background:#ffd700; border:none; padding:3px 8px; border-radius:5px; cursor:pointer; font-weight:bold;">Vender</button></div>
+    <div id="holding-ui">
+        Segurando: <span id="holding-item">Nada</span> 
+        <button onclick="sellHandItem()" style="margin-left:10px; background:#ffd700; border:none; padding:5px 12px; border-radius:5px; cursor:pointer; font-weight:bold; color:#000;">Vender</button>
+    </div>
 
     <div id="game-canvas">
         <div id="player" class="character" style="top: 250px; left: 250px;">👨‍🌾</div>
-
-        <div id="npc" class="character" style="top: 150px; left: 150px;">🏪
-            <span class="npc-label">Mercado do Tião (E)</span>
-        </div>
-
+        <div id="npc" class="character">🏪<span class="npc-label">Mercado e Adm (E)</span></div>
         <div id="farm-zones"></div>
     </div>
 
     <div id="shop-modal" class="modal">
         <div class="modal-header">
-            <h3>Mercado Agrinho</h3>
+            <h3 id="modal-title">Mercado do Tião</h3>
             <button class="close-btn" onclick="toggleShop(false)">Fechar</button>
         </div>
         <div class="shop-tabs">
-            <button class="tab-btn active" id="tab-seeds" onclick="switchTab('seeds')">Sementes da Estação</button>
-            <button class="tab-btn" id="tab-upgrades" onclick="switchTab('upgrades')">Melhorias da Fazenda</button>
+            <button class="tab-btn active" id="tab-seeds" onclick="switchTab('seeds')">🛒 Sementes</button>
+            <button class="tab-btn" id="tab-upgrades" onclick="switchTab('upgrades')">⚙️ Melhorias</button>
+            <button class="tab-btn" id="tab-magic" onclick="switchTab('magic')">🔮 Loja Mágica</button>
+            <button class="tab-btn" id="tab-inventory" onclick="switchTab('inventory')">🎒 Inventário</button>
+            <button class="tab-btn" id="tab-adm" onclick="switchTab('adm')" style="background:#ffdddd; color:#b94a48;">🔑 Painel ADM</button>
         </div>
         <div id="shop-content" class="shop-grid"></div>
     </div>
 
     <script>
         // Configurações e Variáveis de Estado do Jogo
-        let player = { x: 250, y: 250, speed: 8, holding: null };
-        let gameState = { coins: 100, currentSeed: null, maxPlots: 3, speedMultiplier: 1, weightBonus: 0 };
-        let inventory = {}; 
+        let player = { x: 250, y: 250, speed: 5, holding: null };
+        let gameState = { coins: 100, currentSeed: null, maxPlots: 3, speedMultiplier: 1, weightBonus: 0, mutationChance: 0.15 };
         
-        // Base de Dados das Frutas (com emojis adicionados)
+        // Inventário inicializado zerado para todas as sementes
+        let inventory = { maca: 0, banana: 0, laranja: 0, morango: 0, melancia: 0, abacaxi: 0, uva: 0, coco: 0 }; 
+        
+        // Estrutura para controle de movimentação fluida
+        let keysPressed = {};
+
+        // Banco de Dados das Frutas
         const fruitData = {
-            maca: { name: "Maçã", icon: "🍎", basePrice: 15, weightMin: 0.3, time: 5, chance: 100 },
-            banana: { name: "Banana", icon: "🍌", basePrice: 20, weightMin: 0.2, time: 8, chance: 100 },
-            laranja: { name: "Laranja", icon: "🍊", basePrice: 25, weightMin: 0.4, time: 12, chance: 90 },
-            morango: { name: "Morango", icon: "🍓", basePrice: 35, weightMin: 0.05, time: 15, chance: 80 },
-            melancia: { name: "Melancia", icon: "🍉", basePrice: 50, weightMin: 2.0, time: 25, chance: 70 },
-            abacaxi: { name: "Abacaxi", icon: "🍍", basePrice: 65, weightMin: 1.2, time: 30, chance: 50 },
-            uva: { name: "Uva", icon: "🍇", basePrice: 80, weightMin: 0.5, time: 35, chance: 40 },
-            coco: { name: "Coco", icon: "🥥", basePrice: 110, weightMin: 1.5, time: 45, chance: 25 }
+            maca: { name: "Maçã", icon: "🍎", basePrice: 15, weightMin: 0.3, time: 4, chance: 100 },
+            banana: { name: "Banana", icon: "🍌", basePrice: 20, weightMin: 0.2, time: 6, chance: 100 },
+            laranja: { name: "Laranja", icon: "🍊", basePrice: 25, weightMin: 0.4, time: 9, chance: 90 },
+            morango: { name: "Morango", icon: "🍓", basePrice: 35, weightMin: 0.05, time: 12, chance: 80 },
+            melancia: { name: "Melancia", icon: "🍉", basePrice: 50, weightMin: 2.0, time: 18, chance: 70 },
+            abacaxi: { name: "Abacaxi", icon: "🍍", basePrice: 65, weightMin: 1.2, time: 22, chance: 50 },
+            uva: { name: "Uva", icon: "🍇", basePrice: 80, weightMin: 0.5, time: 26, chance: 40 },
+            coco: { name: "Coco", icon: "🥥", basePrice: 110, weightMin: 1.5, time: 32, chance: 30 }
         };
 
-        // Melhorias da Loja
+        // Melhorias Permanentes/Temporárias da Loja Normal
         const upgrades = [
-            { id: 'expand', name: 'Expandir Terreno (+1 Lote)', cost: 150, action: () => { gameState.maxPlots++; createPlots(); } },
-            { id: 'fertilizer', name: 'Adubo Rápido (Crescimento +25%)', cost: 200, action: () => { gameState.speedMultiplier *= 0.75; } },
-            { id: 'vitamin', name: 'Vitaminas de Peso (+500g mínimo)', cost: 250, action: () => { gameState.weightBonus += 0.5; } }
+            { id: 'expand', name: 'Expandir Terreno permanente (+1 Lote)', cost: 150, type: 'perm', action: () => { gameState.maxPlots++; createPlots(); } },
+            { id: 'vitamin', name: 'Vitaminas de Peso permanente (+500g mínimo)', cost: 200, type: 'perm', action: () => { gameState.weightBonus += 0.5; } },
+            { id: 'fertilizer_temp', name: 'Super Adubo Temporário (Crescimento de 1s por 30 segundos)', cost: 90, type: 'temp', action: () => { applyBuff('Super Adubo', 30, () => { gameState.speedMultiplier = 0.1; }, () => { gameState.speedMultiplier = 1; }); } }
         ];
 
+        // Loja Mágica (Eventos e Mutações)
+        const magicItems = [
+            { id: 'potion_mutation', name: 'Poção do Caos (Chance de Mutação Dourada vira 60% por 45s)', cost: 120, action: () => { applyBuff('Mutação Caótica', 45, () => { gameState.mutationChance = 0.60; }, () => { gameState.mutationChance = 0.15; }); } },
+            { id: 'eclipse_event', name: 'Evocar Evento: Eclipse Lunar (+100% valor de venda por 60s)', cost: 180, action: () => { applyBuff('Eclipse Lunar (Vendas x2)', 60, () => { player.sellMultiplier = 2.0; }, () => { player.sellMultiplier = 1.0; }); } }
+        ];
+
+        let shopStock = {}; // Controla a quantidade limitada em estoque por ciclo de rotação
         let currentStoreSeeds = [];
         let shopTimer = 180; 
         let plots = [];
         let currentTab = 'seeds';
+        let activeBuffsList = [];
+        player.sellMultiplier = 1.0;
 
-        // Inicialização do Jogo
+        // Inicialização do Game
         function init() {
             createPlots();
             refreshShopSeeds();
             updateUI();
             
-            // Loop do Timer da Loja
+            // Intervalo do Cronômetro da Loja (Restoque)
             setInterval(() => {
                 shopTimer--;
                 if (shopTimer <= 0) {
@@ -139,16 +164,16 @@
                 }
                 let mins = Math.floor(shopTimer / 60);
                 let secs = shopTimer % 60;
-                document.getElementById('shop-timer').innerText = `Loja atualiza em: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                document.getElementById('shop-timer').innerText = `Loja reestoca em: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }, 1000);
 
-            // Loop de Crescimento das Plantas
+            // Intervalo de Crescimento dos Lotes
             setInterval(() => {
                 plots.forEach(plot => {
                     if (plot.status === 'growing') {
-                        plot.timer -= 1;
+                        plot.timer -= 0.5;
                         let totalTime = fruitData[plot.fruit].time * gameState.speedMultiplier;
-                        let progress = ((totalTime - plot.timer) / totalTime) * 100;
+                        let progress = Math.min(((totalTime - plot.timer) / totalTime) * 100, 100);
                         
                         let fillBar = plot.element.querySelector('.timer-fill');
                         if (fillBar) fillBar.style.width = `${progress}%`;
@@ -165,11 +190,44 @@
                         }
                     }
                 });
-            }, 1000);
+            }, 500);
 
-            window.addEventListener('keydown', handleKeyDown);
-            initClickListeners();
+            // Listeners de Teclado Fluido
+            window.addEventListener('keydown', e => { 
+                keysPressed[e.key.toLowerCase()] = true; 
+                if(e.key.toLowerCase() === 'e') {
+                    let dist = Math.sqrt(Math.pow(player.x - 150, 2) + Math.pow(player.y - 150, 2));
+                    if (dist < 80) toggleShop(document.getElementById('shop-modal').style.display !== 'block');
+                }
+            });
+            window.addEventListener('keyup', e => { keysPressed[e.key.toLowerCase()] = false; });
+
             gameLoop();
+        }
+
+        // Sistema Gerenciador de Buffs Temporários
+        function applyBuff(name, duration, onStart, onEnd) {
+            onStart();
+            let buff = { name, timeLeft: duration, onEnd };
+            activeBuffsList.push(buff);
+            
+            let countdown = setInterval(() => {
+                buff.timeLeft--;
+                renderBuffsUI();
+                if(buff.timeLeft <= 0) {
+                    clearInterval(countdown);
+                    activeBuffsList = activeBuffsList.filter(b => b !== buff);
+                    buff.onEnd();
+                    renderBuffsUI();
+                }
+            }, 1000);
+            renderBuffsUI();
+        }
+
+        function renderBuffsUI() {
+            let container = document.getElementById('active-buffs');
+            if(activeBuffsList.length === 0) { container.innerHTML = ''; return; }
+            container.innerHTML = "✨ <b>Efeitos Ativos:</b><br>" + activeBuffsList.map(b => `⏱️ ${b.name} (${b.timeLeft}s)`).join('<br>');
         }
 
         function createPlots() {
@@ -188,22 +246,12 @@
                 if (oldPlots[i]) {
                     plots.push(oldPlots[i]);
                     plots[i].element = plotDiv;
-                    // Remontar visual se já tinha planta
-                    if (plots[i].status !== 'empty') {
-                        renderPlotAsset(plots[i]);
-                    }
+                    if (plots[i].status !== 'empty') renderPlotAsset(plots[i]);
                 } else {
-                    plots.push({
-                        element: plotDiv,
-                        status: 'empty', 
-                        fruit: null,
-                        timer: 0,
-                        isGolden: false,
-                        weight: 0
-                    });
+                    plots.push({ element: plotDiv, status: 'empty', fruit: null, timer: 0, isGolden: false, weight: 0 });
                 }
             }
-            initClickListeners();
+            plots.forEach((p, idx) => p.element.onclick = () => handlePlotInteraction(idx));
         }
 
         function renderPlotAsset(plot) {
@@ -224,37 +272,29 @@
             }
         }
 
-        function initClickListeners() {
-            plots.forEach((plot, index) => {
-                plot.element.onclick = () => handlePlotInteraction(index);
-            });
-        }
-
         function handlePlotInteraction(index) {
             let plot = plots[index];
             
             if (plot.status === 'empty' && gameState.currentSeed && inventory[gameState.currentSeed] > 0) {
-                // Plantar
                 inventory[gameState.currentSeed]--;
                 plot.status = 'growing';
                 plot.fruit = gameState.currentSeed;
                 plot.timer = fruitData[plot.fruit].time * gameState.speedMultiplier;
-                plot.isGolden = Math.random() < 0.15; // 15% de chance de ser dourada
+                plot.isGolden = Math.random() < gameState.mutationChance; 
                 plot.weight = (Math.random() * 2 + fruitData[plot.fruit].weightMin) + gameState.weightBonus;
                 
                 renderPlotAsset(plot);
                 updateUI();
+                if(currentTab === 'inventory') switchTab('inventory');
             } else if (plot.status === 'ready' && !player.holding) {
-                // Colher
                 player.holding = {
                     id: plot.fruit,
                     name: fruitData[plot.fruit].name,
                     icon: fruitData[plot.fruit].icon,
                     weight: plot.weight,
                     isGolden: plot.isGolden,
-                    price: fruitData[plot.fruit].basePrice * (plot.isGolden ? 3 : 1) * (plot.weight)
+                    price: fruitData[plot.fruit].basePrice * (plot.isGolden ? 3.5 : 1) * (plot.weight) * player.sellMultiplier
                 };
-                
                 plot.status = 'empty';
                 plot.fruit = null;
                 plot.element.innerHTML = `<span style="color:#8c6239; font-size:12px; position:absolute; bottom:5px;">Lote</span>`;
@@ -262,72 +302,52 @@
             }
         }
 
+        // Sorteio das Sementes e Quantidade Limitada de Estoque da Loja
         function refreshShopSeeds() {
             currentStoreSeeds = [];
+            shopStock = {};
             Object.keys(fruitData).forEach(key => {
                 let roll = Math.random() * 100;
                 if (roll <= fruitData[key].chance) {
                     currentStoreSeeds.push(key);
+                    // Estoque aleatório limitado entre 1 e 4 unidades por ciclo
+                    shopStock[key] = Math.floor(Math.random() * 4) + 1;
                 }
             });
-            if(currentStoreSeeds.length < 4) currentStoreSeeds = ['maca', 'banana', 'laranja', 'morango'];
-            if(document.getElementById('shop-modal').style.display === 'block') {
-                switchTab(currentTab);
+            if(currentStoreSeeds.length < 3) {
+                currentStoreSeeds = ['maca', 'banana', 'laranja'];
+                currentStoreSeeds.forEach(k => shopStock[k] = 3);
             }
+            if(document.getElementById('shop-modal').style.display === 'block') switchTab(currentTab);
         }
 
         function updateUI() {
             document.getElementById('coin-count').innerText = Math.floor(gameState.coins);
             if(gameState.currentSeed) {
-                document.getElementById('selected-seed').innerText = fruitData[gameState.currentSeed].name;
-                document.getElementById('seed-qty').innerText = inventory[gameState.currentSeed] || 0;
+                document.getElementById('selected-seed').innerText = `${fruitData[gameState.currentSeed].name} (${inventory[gameState.currentSeed]})`;
             } else {
                 document.getElementById('selected-seed').innerText = "Nenhuma";
-                document.getElementById('seed-qty').innerText = "0";
             }
 
             if(player.holding) {
-                let goldTxt = player.holding.isGolden ? "✨ DOURADA! " : "";
+                let goldTxt = player.holding.isGolden ? "✨ DOURADO MUTAÇÃO! " : "";
                 document.getElementById('holding-ui').style.display = 'block';
-                document.getElementById('holding-item').innerText = `${goldTxt}${player.holding.name} (${player.holding.weight.toFixed(2)} Kg)`;
+                document.getElementById('holding-item').innerText = `${goldTxt}${player.holding.name} (${player.holding.weight.toFixed(2)} Kg) -> Valor: ${Math.floor(player.holding.price)}🪙`;
             } else {
                 document.getElementById('holding-ui').style.display = 'none';
             }
         }
 
-        // Movimentação do Jogador e Tecla de Interação (E)
-        function handleKeyDown(e) {
-            let key = e.key.toLowerCase();
-            
-            if (key === 'a' || key === 'arrowleft') player.x -= player.speed;
-            if (key === 'd' || key === 'arrowright') player.x += player.speed;
-            if (key === 'w' || key === 'arrowup') player.y -= player.speed;
-            if (key === 's' || key === 'arrowdown') player.y += player.speed;
-            
-            // Forçar o jogador a ficar dentro da tela
-            player.x = Math.max(0, Math.min(window.innerWidth - 45, player.x));
-            player.y = Math.max(0, Math.min(window.innerHeight - 45, player.y));
-
-            // Abrir Loja ao aproximar do NPC e apertar 'E'
-            if (key === 'e') {
-                let npcX = 150, npcY = 150;
-                let dist = Math.sqrt(Math.pow(player.x - npcX, 2) + Math.pow(player.y - npcY, 2));
-                if (dist < 80) {
-                    toggleShop(true);
-                }
-            }
-        }
-
         function toggleShop(show) {
-            let modal = document.getElementById('shop-modal');
-            modal.style.display = show ? 'block' : 'none';
-            if(show) switchTab('seeds');
+            document.getElementById('shop-modal').style.display = show ? 'block' : 'none';
+            if(show) switchTab(currentTab);
         }
 
+        // Troca de Abas do Menu (Sementes, Melhorias, Mágica, Bolsa, ADM)
         function switchTab(tab) {
             currentTab = tab;
-            document.getElementById('tab-seeds').classList.toggle('active', tab === 'seeds');
-            document.getElementById('tab-upgrades').classList.toggle('active', tab === 'upgrades');
+            const tabButtons = ['seeds', 'upgrades', 'magic', 'inventory', 'adm'];
+            tabButtons.forEach(t => document.getElementById(`tab-${t}`).classList.toggle('active', t === tab));
             
             let content = document.getElementById('shop-content');
             content.innerHTML = '';
@@ -336,56 +356,135 @@
                 currentStoreSeeds.forEach(seedKey => {
                     let item = fruitData[seedKey];
                     let cost = Math.floor(item.basePrice * 0.4);
+                    let currentStock = shopStock[seedKey] || 0;
+                    let isEsgotado = currentStock <= 0;
+                    
                     content.innerHTML += `
                         <div class="shop-item">
                             <div class="item-info">
                                 <span class="item-icon">${item.icon}</span>
                                 <div class="item-details">
                                     <strong>Semente de ${item.name}</strong>
-                                    <p>Tempo: ${item.time}s | Peso Mín: ${item.weightMin}kg</p>
+                                    <p>Tempo: ${item.time}s | <span class="stock-label">Em Estoque: ${currentStock}</span></p>
                                 </div>
                             </div>
-                            <button class="buy-btn" onclick="buySeed('${seedKey}', ${cost})">${cost} 🪙</button>
+                            <button class="buy-btn" ${isEsgotado ? 'disabled' : ''} onclick="buySeed('${seedKey}', ${cost})">
+                                ${isEsgotado ? 'Esgotado' : cost + ' 🪙'}
+                            </button>
                         </div>
                     `;
                 });
-            } else {
-                upgrades.forEach(up => {
+            } else if (tab === 'upgrades') {
+                upgrades.forEach((up, idx) => {
                     content.innerHTML += `
                         <div class="shop-item">
                             <div class="item-info">
-                                <span class="item-icon">⭐</span>
+                                <span class="item-icon">🛠️</span>
                                 <div class="item-details">
                                     <strong>${up.name}</strong>
-                                    <p>Melhoria permanente para a fazenda</p>
+                                    <p>Tipo: ${up.type === 'perm' ? 'Permanente' : 'Consumível Temporário'}</p>
                                 </div>
                             </div>
-                            <button class="buy-btn" onclick="buyUpgrade('${up.id}', ${up.cost})">${up.cost} 🪙</button>
+                            <button class="buy-btn" onclick="buyUpgrade(${idx})">${up.cost} 🪙</button>
                         </div>
                     `;
                 });
+            } else if (tab === 'magic') {
+                magicItems.forEach((mItem, idx) => {
+                    content.innerHTML += `
+                        <div class="shop-item">
+                            <div class="item-info">
+                                <span class="item-icon">🔮</span>
+                                <div class="item-details">
+                                    <strong>${mItem.name}</strong>
+                                    <p>Altera as probabilidades místicas e físicas da fazenda.</p>
+                                </div>
+                            </div>
+                            <button class="buy-btn" style="background:#9c27b0;" onclick="buyMagic(${idx})">${mItem.cost} 🪙</button>
+                        </div>
+                    `;
+                });
+            } else if (tab === 'inventory') {
+                content.innerHTML += `<h4 style="margin:5px 0; color:#333;">🎒 Suas Sementes no Bolso:</h4>`;
+                Object.keys(inventory).forEach(key => {
+                    let qtd = inventory[key];
+                    let data = fruitData[key];
+                    content.innerHTML += `
+                        <div class="shop-item" style="opacity: ${qtd > 0 ? 1 : 0.5}">
+                            <div class="item-info">
+                                <span class="item-icon">${data.icon}</span>
+                                <div class="item-details">
+                                    <strong>Sementes de ${data.name}</strong>
+                                    <p>Quantidade Guardada: ${qtd}</p>
+                                </div>
+                            </div>
+                            <button class="buy-btn" style="background:#2196F3;" ${qtd > 0 ? '' : 'disabled'} onclick="equipSeed('${key}')">Equipar</button>
+                        </div>
+                    `;
+                });
+            } else if (tab === 'adm') {
+                // RENDERIZAR O PAINEL DE CHEATS/ADMINISTRADOR
+                content.innerHTML = `
+                    <div style="background:#fee; padding:10px; border-radius:5px; border:1px solid #fcc; font-size:12px; color:#a00; margin-bottom:10px;">
+                        <b>⚠️ MODO DESENVOLVEDOR:</b> Digite os valores abaixo e clique em aplicar para alterar o ecossistema imediatamente.
+                    </div>
+                    <div class="adm-field">
+                        <label>Definir Quantidade de Dinheiro (🪙 Moedas):</label>
+                        <input type="number" id="adm-coins" value="${Math.floor(gameState.coins)}">
+                    </div>
+                    <div class="adm-field">
+                        <label>Injetar Sementes no Inventário:</label>
+                        <select id="adm-seed-type">
+                            ${Object.keys(fruitData).map(k => `<option value="${k}">${fruitData[k].name}</option>`).join('')}
+                        </select>
+                        <input type="number" id="adm-seed-qty" value="10" min="1">
+                    </div>
+                    <div class="adm-field">
+                        <label>Velocidade de Movimento do Fazendeiro:</label>
+                        <input type="number" id="adm-speed" value="${player.speed}" step="1">
+                    </div>
+                    <button class="adm-btn" onclick="executeAdmCommand()">Aplicar Alterações Hack/Adm</button>
+                `;
             }
         }
 
+        // Funções de Compra e Ação das Abas
         function buySeed(seedKey, cost) {
-            if (gameState.coins >= cost) {
+            if (gameState.coins >= cost && shopStock[seedKey] > 0) {
                 gameState.coins -= cost;
-                inventory[seedKey] = (inventory[seedKey] || 0) + 1;
-                gameState.currentSeed = seedKey;
+                shopStock[seedKey]--;
+                inventory[seedKey]++;
+                if(!gameState.currentSeed) gameState.currentSeed = seedKey;
                 updateUI();
                 switchTab('seeds');
             }
         }
 
-        function buyUpgrade(id, cost) {
-            if (gameState.coins >= cost) {
-                let up = upgrades.find(u => u.id === id);
-                if (up) {
-                    gameState.coins -= cost;
-                    up.action();
-                    updateUI();
-                    switchTab('upgrades');
-                }
+        function buyUpgrade(idx) {
+            let up = upgrades[idx];
+            if (gameState.coins >= up.cost) {
+                gameState.coins -= up.cost;
+                up.action();
+                updateUI();
+                switchTab('upgrades');
+            }
+        }
+
+        function buyMagic(idx) {
+            let mItem = magicItems[idx];
+            if (gameState.coins >= mItem.cost) {
+                gameState.coins -= mItem.cost;
+                mItem.action();
+                updateUI();
+                switchTab('magic');
+            }
+        }
+
+        function equipSeed(key) {
+            if(inventory[key] > 0) {
+                gameState.currentSeed = key;
+                updateUI();
+                alert(`Você equipou: Sementes de ${fruitData[key].name}`);
             }
         }
 
@@ -397,15 +496,43 @@
             }
         }
 
-        // Loop principal de renderização do jogador na tela
+        // Execução dos Comandos do Painel ADM
+        function executeAdmCommand() {
+            let coinInput = document.getElementById('adm-coins').value;
+            let seedType = document.getElementById('adm-seed-type').value;
+            let seedQty = document.getElementById('adm-seed-qty').value;
+            let speedInput = document.getElementById('adm-speed').value;
+
+            if(coinInput !== "") gameState.coins = parseFloat(coinInput);
+            if(seedQty !== "") inventory[seedType] += parseInt(seedQty);
+            if(speedInput !== "") player.speed = parseFloat(speedInput);
+
+            updateUI();
+            alert("✨ Comandos de Administrador injetados com sucesso total!");
+            switchTab('adm');
+        }
+
+        // Loop de Movimentação Fluida por Frame (Teclado Assíncrono)
         function gameLoop() {
+            let moved = false;
+            // Movimentação Fluida Direcional Sem Engasgos
+            if (keysPressed['a'] || keysPressed['arrowleft']) { player.x -= player.speed; moved = true; }
+            if (keysPressed['d'] || keysPressed['arrowright']) { player.x += player.speed; moved = true; }
+            if (keysPressed['w'] || keysPressed['arrowup']) { player.y -= player.speed; moved = true; }
+            if (keysPressed['s'] || keysPressed['arrowdown']) { player.y += player.speed; moved = true; }
+            
+            // Limitadores das Bordas do Mapa
+            player.x = Math.max(0, Math.min(window.innerWidth - 45, player.x));
+            player.y = Math.max(0, Math.min(window.innerHeight - 45, player.y));
+
+            // Atualização gráfica nativa do navegador
             let pDiv = document.getElementById('player');
             pDiv.style.left = player.x + 'px';
             pDiv.style.top = player.y + 'px';
+
             requestAnimationFrame(gameLoop);
         }
 
-        // Iniciar tudo ao carregar
         window.onload = init;
     </script>
 </body>
