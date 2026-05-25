@@ -5,298 +5,216 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fazendinha do Agrinho</title>
     <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #2e3131;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        #game-container {
-            position: relative;
-            width: 800px;
-            height: 600px;
-            background-color: #5cba47; /* Gramado */
-            border: 8px solid #3e2723;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* Interface de Usuário (UI) */
-        #ui {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 18px;
-            color: #333;
-            border: 3px solid #4caf50;
-            z-index: 10;
-        }
-        #inventory-ui {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #333;
-            border: 3px solid #2196f3;
-            z-index: 10;
-        }
+        * { box-sizing: border-box; user-select: none; }
+        body { margin: 0; padding: 0; background-color: #2e5c1e; font-family: 'Arial', sans-serif; overflow: hidden; }
+        
+        /* UI Principal */
+        #ui-top { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 15px; border-radius: 10px; border: 3px solid #ffd700; z-index: 10; min-width: 200px; }
+        #ui-top h2 { margin: 0 0 5px 0; color: #5cb85c; font-size: 20px; }
+        #ui-top p { margin: 5px 0; font-size: 16px; font-weight: bold; }
+        
+        /* Tabuleiro do Jogo */
+        #game-canvas { width: 100vw; height: 100vh; position: relative; background: #4a7c3a; background-image: radial-gradient(#558c44 20%, transparent 20%), radial-gradient(#558c44 20%, transparent 20%); background-size: 40px 40px; background-position: 0 0, 20px 20px; }
+        
         /* Personagens */
-        .character {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            transition: transform 0.1s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        #player {
-            background-color: #ffca28; /* Chapéu de palha / Amarelo */
-            border: 3px solid #e65100;
-            z-index: 5;
-        }
-        #npc-agrinho {
-            background-color: #4caf50; /* Verde Agrinho */
-            border: 3px solid #1b5e20;
-            top: 100px;
-            left: 100px;
-            z-index: 4;
-        }
-        .npc-label {
-            position: absolute;
-            top: -25px;
-            background: #fff;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            white-space: nowrap;
-            border: 1px solid #333;
-        }
-        /* Loja (Pop-up) */
-        #shop-modal {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            border: 4px solid #4caf50;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            z-index: 100;
-            width: 320px;
-        }
-        #shop-modal h2 {
-            margin-top: 0;
-            color: #2e7d32;
-            text-align: center;
-            font-size: 22px;
-        }
-        .shop-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
-        .shop-item button {
-            background: #4caf50;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .shop-item button:hover {
-            background: #45a049;
-        }
-        #close-shop {
-            display: block;
-            margin: 15px auto 0 auto;
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 6px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        /* Zona de Plantação (Canteiros) */
-        #plots-container {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            z-index: 2;
-        }
-        .plot {
-            width: 80px;
-            height: 80px;
-            background-color: #795548; /* Terra escura */
-            border: 4px solid #5d4037;
-            border-radius: 8px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        }
-        .plant {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            transition: all 0.5s;
-        }
-        /* Estados de crescimento */
-        .sprout { width: 20px; height: 20px; background-color: #8bc34a; } /* Brotinho */
-        .maca-ripe { width: 45px; height: 45px; background-color: #f44336; border-radius: 50%; display:flex; align-items:center; justify-content:center;} 
-        .banana-ripe { width: 45px; height: 45px; background-color: #ffeb3b; border-radius: 30%; }
-        .melancia-ripe { width: 55px; height: 55px; background-color: #2e7d32; border: 2px dashed #c62828; border-radius: 50%; }
+        .character { position: absolute; width: 45px; height: 45px; border-radius: 50%; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 4px 5px rgba(0,0,0,0.3); }
+        #player { background: #ffcc00; border: 3px solid #ff9900; z-index: 5; }
+        #player::after { content: '🤠'; font-size: 24px; } /* Chapéu do Agrinho */
+        #npc { background: #337ab7; border: 3px solid #2e6da4; top: 150px; left: 150px; z-index: 4; }
+        #npc::after { content: '👨‍🌾'; font-size: 24px; }
+        .npc-label { position: absolute; top: -25px; background: white; color: black; padding: 2px 5px; border-radius: 5px; font-size: 12px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        /* Lotes de Terra */
+        #farm-zones { position: absolute; top: 100px; left: 400px; display: grid; grid-template-columns: repeat(3, 100px); gap: 15px; }
+        .plot { width: 100px; height: 100px; background: #654321; border: 4px solid #4a3018; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        .plot.ready-to-plant { border-color: #8bc34a; }
         
-        .plot-label {
-            position: absolute;
-            bottom: -20px;
-            font-size: 11px;
-            color: white;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px black;
-            white-space: nowrap;
-        }
+        /* Frutas e Plantas */
+        .crop { font-size: 40px; animation: pulse 1s infinite alternate; position: relative; display: flex; flex-direction: column; align-items: center; }
+        .crop.growing { filter: grayscale(50%) brightness(70%) scale(0.6); }
+        .crop.golden { filter: drop-shadow(0px 0px 10px #ffd700) brightness(1.2); }
+        .timer-bar { position: absolute; bottom: -10px; left: 0; width: 100%; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
+        .timer-fill { height: 100%; width: 0%; background: #4caf50; transition: width 0.1s linear; }
+        .star-effect { position: absolute; color: gold; font-size: 16px; animation: floatUp 1s ease-out forwards; pointer-events: none; }
+
+        /* Lojas e Telas (Modais) */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 4px solid #4a3018; border-radius: 15px; padding: 20px; z-index: 100; width: 90%; max-width: 550px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 85vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-header h3 { margin: 0; color: #4a3018; }
+        .close-btn { background: #d9534f; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         
-        /* Instruções de controle */
-        #controls-info {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            color: white;
-            font-size: 12px;
-            text-shadow: 1px 1px 2px #000;
-        }
+        .shop-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; background: #f0f0f0; border: 1px solid #ccc; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        .tab-btn.active { background: #5cb85c; color: white; border-color: #4cae4c; }
+
+        .shop-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .shop-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 2px solid #f0f0f0; border-radius: 8px; background: #fafafa; }
+        .shop-item:hover { border-color: #5cb85c; }
+        .item-info { display: flex; align-items: center; gap: 10px; }
+        .item-icon { font-size: 30px; }
+        .item-details p { margin: 2px 0; font-size: 12px; color: #666; }
+        .item-details strong { font-size: 15px; color: #333; }
+        .buy-btn { background: #5cb85c; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .buy-btn:disabled { background: #ccc; cursor: not-allowed; }
+        
+        /* Notificações e Mão */
+        #holding-ui { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; display: none; z-index: 10; border: 2px solid #5cb85c; }
+        #shop-timer { color: #ff3333; font-size: 13px; font-weight: bold; margin-top: 2px; }
+
+        @keyframes pulse { 0% { transform: scale(0.95); } 100% { transform: scale(1.05); } }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-40px); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <div id="ui">Moedas: $<span id="coins">20</span></div>
-        
-        <div id="inventory-ui">
-            <strong>Sementes:</strong><br>
-            🍎 Maçã: <span id="inv-maca">1</span><br>
-            🍌 Banana: <span id="inv-banana">0</span><br>
-            🍉 Melancia: <span id="inv-melancia">0</span>
+    <div id="ui-top">
+        <h2>Fazenda Agrinho</h2>
+        <p>💰 Moedas: <span id="coin-count">100</span></p>
+        <p>🎒 Semente Atual: <span id="selected-seed">Nenhuma</span> (<span id="seed-qty">0</span>)</p>
+        <div id="shop-timer">Loja atualiza em: 03:00</div>
+    </div>
+
+    <div id="holding-ui">Segurando: <span id="holding-item">Nada</span> <button onclick="sellHandItem()" style="margin-left:10px; background:#ffd700; border:none; padding:3px 8px; border-radius:5px; cursor:pointer; font-weight:bold;">Vender</button></div>
+
+    <div id="game-canvas">
+        <div id="player" class="character" style="top: 250px; left: 250px;"></div>
+
+        <div id="npc" class="character">
+            <span class="npc-label">Mercado do Tião (E)</span>
         </div>
 
-        <div id="npc-agrinho" class="character">
-            👨‍🌾
-            <div class="npc-label">Agrinho (Loja)</div>
-        </div>
-
-        <div id="player" class="character">🤠</div>
-
-        <div id="plots-container">
-            <div class="plot" onclick="interactPlot(0)"><div class="plant-slot"></div><div class="plot-label">Canteiro 1</div></div>
-            <div class="plot" onclick="interactPlot(1)"><div class="plant-slot"></div><div class="plot-label">Canteiro 2</div></div>
-            <div class="plot" onclick="interactPlot(2)"><div class="plant-slot"></div><div class="plot-label">Canteiro 3</div></div>
-            <div class="plot" onclick="interactPlot(3)"><div class="plant-slot"></div><div class="plot-label">Canteiro 4</div></div>
-        </div>
-
-        <div id="shop-modal">
-            <h2>Loja do Agrinho</h2>
-            <div class="shop-item">
-                <div>🍎 Semente de Maçã<br><small>Custo: $5 | Venda: $12</small></div>
-                <button onclick="buySeed('maca', 5)">Comprar</button>
+        <div id="farm-zones">
             </div>
-            <div class="shop-item">
-                <div>🍌 Semente de Banana<br><small>Custo: $10 | Venda: $25</small></div>
-                <button onclick="buySeed('banana', 10)">Comprar</button>
-            </div>
-            <div class="shop-item">
-                <div>🍉 Semente de Melancia<br><small>Custo: $20 | Venda: $55</small></div>
-                <button onclick="buySeed('melancia', 20)">Comprar</button>
-            </div>
-            <button id="close-shop" onclick="closeShop()">Fechar Loja</button>
-        </div>
+    </div>
 
-        <div id="controls-info">Use WASD ou Setas para andar. Chegue perto do Agrinho para abrir a loja!</div>
+    <div id="shop-modal" class="modal">
+        <div class="modal-header">
+            <h3>Mercado Agrinho</h3>
+            <button class="close-btn" onclick="toggleShop(false)">Fechar</button>
+        </div>
+        <div class="shop-tabs">
+            <button class="tab-btn active" id="tab-seeds" onclick="switchTab('seeds')">Sementes da Estação</button>
+            <button class="tab-btn" id="tab-upgrades" onclick="switchTab('upgrades')">Melhorias da Fazenda</button>
+        </div>
+        <div id="shop-content" class="shop-grid">
+            </div>
     </div>
 
     <script>
-        // Dados do Jogo
-        const playerState = {
-            x: 400,
-            y: 300,
-            speed: 5,
-            coins: 20,
-            inventory: {
-                maca: 1,
-                banana: 0,
-                melancia: 0
-            }
+        // Configurações e Variáveis de Estado do Jogo
+        let player = { x: 250, y: 250, speed: 8, holding: null };
+        let gameState = { coins: 100, currentSeed: null, maxPlots: 3, speedMultiplier: 1, weightBonus: 0 };
+        let inventory = {}; // Guarda a quantidade de sementes compradas
+        
+        // Base de Dados das Frutas (Mais de 7 Frutas com especificações de Peso Mínimo e Valores)
+        const fruitData = {
+            maca: { name: "Maçã", icon: "🍎", basePrice: 15, weightMin: 0.3, time: 5, chance: 100 },
+            banana: { name: "Banana", icon: "🍌", basePrice: 20, weightMin: 0.2, time: 8, chance: 100 },
+            laranja: { name: "Laranja", icon: "🍊", basePrice: 25, weightMin: 0.4, time: 12, chance: 90 },
+            morango: { name: "Morango", icon: "🍓", basePrice: 35, weightMin: 0.05, time: 15, chance: 80 },
+            melancia: { name: "Melancia", icon: "🍉", basePrice: 50, weightMin: 2.0, time: 25, chance: 70 },
+            abacaxi: { name: "Abacaxi", icon: "🍍", basePrice: 65, weightMin: 1.2, time: 30, chance: 50 },
+            uva: { name: "Uva", icon: "🍇", basePrice: 80, weightMin: 0.5, time: 35, chance: 40 },
+            coco: { name: "Coco", icon: "🥥", basePrice: 110, weightMin: 1.5, time: 45, chance: 25 }
         };
 
-        const npcState = { x: 100, y: 100, radius: 50 };
-
-        // Configuração das Frutas (Tempo em milisegundos)
-        const fruitConfig = {
-            maca: { growthTime: 4000, sellPrice: 12, icon: '🍎', class: 'maca-ripe' },
-            banana: { growthTime: 7000, sellPrice: 25, icon: '🍌', class: 'banana-ripe' },
-            melancia: { growthTime: 12000, sellPrice: 55, icon: '🍉', class: 'melancia-ripe' }
-        };
-
-        // Estado dos 4 Canteiros
-        const plots = [
-            { status: 'empty', fruit: null, growthStage: 0 },
-            { status: 'empty', fruit: null, growthStage: 0 },
-            { status: 'empty', fruit: null, growthStage: 0 },
-            { status: 'empty', fruit: null, growthStage: 0 }
+        // Melhorias da Loja
+        const upgrades = [
+            { id: 'expand', name: 'Expandir Terreno (+1 Lote)', cost: 150, action: () => { gameState.maxPlots++; createPlots(); } },
+            { id: 'fertilizer', name: 'Adubo Rápido (Crescimento +25%)', cost: 200, action: () => { gameState.speedMultiplier *= 0.75; } },
+            { id: 'vitamin', name: 'Vitaminas de Peso (+500g mínimo)', cost: 250, action: () => { gameState.weightBonus += 0.5; } }
         ];
 
-        // Controles de Movimento
-        const keys = {};
-        window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+        let currentStoreSeeds = [];
+        let shopTimer = 180; // 3 minutos em segundos
+        let plots = [];
 
-        const playerEl = document.getElementById('player');
-        const shopModal = document.getElementById('shop-modal');
+        // Inicialização do Jogo
+        function init() {
+            createPlots();
+            refreshShopSeeds();
+            updateUI();
+            
+            // Loop do Timer da Loja
+            setInterval(() => {
+                shopTimer--;
+                if (shopTimer <= 0) {
+                    refreshShopSeeds();
+                    shopTimer = 180;
+                }
+                let mins = Math.floor(shopTimer / 60);
+                let secs = shopTimer % 60;
+                document.getElementById('shop-timer').innerText = `Loja atualiza em: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
 
-        // Atualizar a Interface
-        function updateUI() {
-            document.getElementById('coins').innerText = playerState.coins;
-            document.getElementById('inv-maca').innerText = playerState.inventory.maca;
-            document.getElementById('inv-banana').innerText = playerState.inventory.banana;
-            document.getElementById('inv-melancia').innerText = playerState.inventory.melancia;
+            // Inputs do Teclado
+            window.addEventListener('keydown', handleKeyDown);
+            gameLoop();
         }
 
-        // Loop Principal do Jogo (Movimentação e proximidade)
-        function gameLoop() {
-            // Movimentação
-            if (keys['arrowup'] || keys['w']) playerState.y = Math.max(0, playerState.y - playerState.speed);
-            if (keys['arrowdown'] || keys['s']) playerState.y = Math.min(560, playerState.y + playerState.speed);
-            if (keys['arrowleft'] || keys['a']) playerState.x = Math.max(0, playerState.x
+        // Criar os Lotes de Terra dinamicamente com base no limite máximo
+        function createPlots() {
+            const container = document.getElementById('farm-zones');
+            container.innerHTML = '';
+            plots = [];
+            
+            for(let i = 0; i < gameState.maxPlots; i++) {
+                let plotDiv = document.createElement('div');
+                plotDiv.className = 'plot';
+                plotDiv.id = `plot-${i}`;
+                plotDiv.innerHTML = `<span style="color:#8c6239; font-size:12px; position:absolute; bottom:5px;">Lote ${i+1}</span>`;
+                container.appendChild(plotDiv);
+                
+                plots.push({
+                    element: plotDiv,
+                    status: 'empty', // empty, growing, ready
+                    fruit: null,
+                    timer: 0,
+                    isGolden: false,
+                    weight: 0
+                });
+            }
+        }
+
+        // Sistema de Sorteio/Reabastecimento da Loja (A cada 3 Minutos)
+        function refreshShopSeeds() {
+            currentStoreSeeds = [];
+            // Filtra e adiciona dinamicamente chances de frutas raras aparecerem
+            Object.keys(fruitData).forEach(key => {
+                let roll = Math.random() * 100;
+                if (roll <= fruitData[key].chance) {
+                    currentStoreSeeds.push(key);
+                }
+            });
+            // Garante que haja pelo menos 4 tipos de sementes sempre
+            if(currentStoreSeeds.length < 4) currentStoreSeeds = ['maca', 'banana', 'laranja', 'morango'];
+            
+            if(document.getElementById('shop-modal').style.display === 'block') {
+                switchTab('seeds');
+            }
+        }
+
+        // Atualização dos textos da interface
+        function updateUI() {
+            document.getElementById('coin-count').innerText = Math.floor(gameState.coins);
+            if(gameState.currentSeed) {
+                document.getElementById('selected-seed').innerText = fruitData[gameState.currentSeed].name;
+                document.getElementById('seed-qty').innerText = inventory[gameState.currentSeed] || 0;
+            } else {
+                document.getElementById('selected-seed').innerText = "Nenhuma";
+                document.getElementById('seed-qty').innerText = "0";
+            }
+
+            if(player.holding) {
+                let goldTxt = player.holding.isGolden ? "🌟 DOURADA! " : "";
+                document.getElementById('holding-ui').style.display = 'block';
+                document.getElementById('holding-item').innerText = `${goldTxt}${player.holding.name} (${player.holding.weight.toFixed(2)} Kg)`;
+            } else {
+                document.getElementById('holding-ui').style.display = 'none';
+            }
+        }
+
+        // Movimentação e detecção de proximidade básica
+        function handleKeyDown(e) {
+            let key = e.key.toLowerCase();
+            let newX = player.x
