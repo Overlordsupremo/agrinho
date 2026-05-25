@@ -30,22 +30,23 @@
         /* Cenário / Tela */
         #game-canvas { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; background: #346c24; background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 32px 32px; z-index: 1; }
         
-        /* Personagem visível */
+        /* Personagem */
         #player { position: absolute; width: 48px; height: 48px; background-color: #ffcc00; border: 3px solid #1a1510; border-radius: 50%; display: flex !important; align-items: center; justify-content: center; font-size: 28px; z-index: 50 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.4); text-align: center; line-height: 48px; }
         
         .npc { position: absolute; width: 50px; height: 50px; font-size: 28px; z-index: 10; background: #2b4d75; border: 3px solid #1a1510; border-radius: 4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
         #npc-tiao { background: #3a6fa5; }
         #npc-mago { background: #6a329b; }
+        #npc-chico { background: #a0522d; }
         #npc-hacker { background: #222222; border-color: #33ff33; }
         .npc-label { position: absolute; top: -28px; background: #1a1510; color: #f4ecd8; padding: 2px 6px; border: 2px solid #b8860b; font-size: 10px; font-weight: bold; white-space: nowrap; font-family: inherit; }
 
-        /* Lotes de Terra */
-        #farm-zones { position: absolute; top: 220px; left: 340px; display: flex; flex-wrap: wrap; gap: 12px; max-width: calc(100vw - 380px); z-index: 5; }
-        .plot { width: 84px; height: 84px; background: #50341c; border: 4px solid #2d1d0f; border-radius: 2px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6); }
+        /* Grade de Lotes Protegida (Trava Dinâmica da Tela) */
+        #farm-zones { position: absolute; top: 200px; left: 340px; display: flex; flex-wrap: wrap; gap: 10px; max-width: calc(100vw - 380px); max-height: calc(100vh - 340px); overflow: hidden; z-index: 5; padding: 5px; }
+        .plot { width: 80px; height: 80px; background: #50341c; border: 4px solid #2d1d0f; border-radius: 2px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6); }
         .plot:hover { border-color: #7bb842; }
         
         /* Efeitos Visuais de Mutação */
-        .crop { font-size: 36px; animation: bobbing 1s infinite alternate ease-in-out; position: relative; display: flex; flex-direction: column; align-items: center; z-index: 6; }
+        .crop { font-size: 34px; animation: bobbing 1s infinite alternate ease-in-out; position: relative; display: flex; flex-direction: column; align-items: center; z-index: 6; }
         .crop.growing { filter: grayscale(70%) brightness(60%) scale(0.6); animation: none; }
         
         .crop.golden { filter: drop-shadow(0px 0px 8px #ffd700) brightness(1.2); }
@@ -84,8 +85,6 @@
         .adm-field { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
         .adm-field label { font-weight: bold; color: #33ff33; font-size: 11px; text-transform: uppercase; }
         .adm-field input, .adm-field select { padding: 6px; background: #111; border: 2px solid #33ff33; color: #00ff00; font-family: inherit; }
-
-        #holding-ui { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1a1510; color: #f4ecd8; padding: 10px 16px; border: 3px solid #b8860b; font-weight: bold; z-index: 90; font-size: 12px; box-shadow: 0 4px 0 #0c0a07; border-radius: 4px; display: block; }
     </style>
 </head>
 <body>
@@ -110,16 +109,12 @@
         <div class="hotbar-slot" id="slot-7" onclick="selectSlot(7)"><span class="slot-num">8</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
     </div>
 
-    <div id="holding-ui">
-        🏛️ Mercado de Vendas Geral (Clique para liquidar seu estoque colhido por moedas)
-        <button onclick="sellCollectedFruits()" style="margin-left:12px; background:#4caf50; color:white; border:2px solid #2e7d32; padding:4px 10px; font-family:inherit; font-weight:bold; cursor:pointer;">💵 VENDER TUDO DA HOTBAR</button>
-    </div>
-
     <div id="game-canvas">
         <div id="player" style="top: 300px; left: 250px;">👨‍🌾</div>
         
-        <div id="npc-tiao" class="character npc" style="top: 100px; left: 140px;">🏪<span class="npc-label">Mercado Tião [E]</span></div>
-        <div id="npc-mago" class="character npc" style="top: 100px; left: 800px;">🧙‍♂️<span class="npc-label">Altar Místico [E]</span></div>
+        <div id="npc-tiao" class="character npc" style="top: 80px; left: 140px;">🏪<span class="npc-label">Mercado Tião [E]</span></div>
+        <div id="npc-mago" class="character npc" style="top: 80px; left: 800px;">🧙‍♂️<span class="npc-label">Altar Místico [E]</span></div>
+        <div id="npc-chico" class="character npc" style="top: 480px; left: 800px;">👨‍💼<span class="npc-label">Seu Chico Comprador [E]</span></div>
         <div id="npc-hacker" class="character npc" style="top: 480px; left: 140px;">🕵️‍♂️<span class="npc-label">Hacker Terminal [E]</span></div>
         
         <div id="farm-zones"></div>
@@ -136,13 +131,11 @@
 
     <script>
         let player = { x: 250, y: 300, speed: 6 };
-        let gameState = { coins: 150, maxPlots: 6, speedMultiplier: 1.0, weightBonus: 0, mutationChance: 0.15, hackerUnlocked: false, activeHotbarSlot: 0 };
+        // REDUZIDO: Chance base global de mutação natural caiu de 0.15 para 0.06 (6%) para valorizar raridade
+        let gameState = { coins: 150, maxPlots: 6, speedMultiplier: 1.0, weightBonus: 0, mutationChance: 0.06, hackerUnlocked: false, activeHotbarSlot: 0 };
         let currentModalNPC = null;
         
-        // Inventário reserva
         let backpack = {};
-
-        // Hotbar inicial
         let hotbar = [
             { id: 'maca_semente', qty: 5, type: 'semente', data: null }, 
             { id: 'banana_semente', qty: 3, type: 'semente', data: null }, 
@@ -161,7 +154,6 @@
         let plots = [];
         let activeBuffs = {}; 
 
-        // LISTA DE FRUTAS COMPLETA ENCONTRADA E RESTAURADA!
         const fruitData = {
             maca: { name: "Maçã", icon: "🍎", basePrice: 15, weightMin: 0.3, time: 4, chance: 100 },
             banana: { name: "Banana", icon: "🍌", basePrice: 20, weightMin: 0.2, time: 6, chance: 100 },
@@ -177,21 +169,19 @@
             estrela: { name: "Fruta Estrela", icon: "⭐", basePrice: 150, weightMin: 0.3, time: 35, chance: 30 }
         };
 
-        // Inicializa dinamicamente as chaves da mochila com base na lista de frutas
         Object.keys(fruitData).forEach(k => {
             backpack[`${k}_semente`] = k === 'maca' ? 5 : (k === 'banana' ? 3 : 0);
             backpack[`${k}_fruta`] = 0;
         });
 
         const upgrades = [
-            { id: 'expand', name: 'Expandir Lote (+1 Terreno)', cost: 150, type: 'perm', action: () => { gameState.maxPlots++; createPlots(); } },
+            { id: 'expand', name: 'Expandir Lote (+1 Terreno)', cost: 150, type: 'perm', action: () => { if(gameState.maxPlots < 15){ gameState.maxPlots++; createPlots(); } else { alert("Limite de segurança de lotes atingido!"); } } },
             { id: 'vitamin', name: 'Vitaminas Orgânicas (+600g peso)', cost: 220, type: 'perm', action: () => { gameState.weightBonus += 0.6; } },
             { id: 'fert_ruim', name: '💩 Adubo Estrume (+0.2x Vel)', cost: 15, type: 'buff', duration: 60, speed: 0.8, buffKey: 'Ruim', noStack: false },
             { id: 'fert_normal', name: '🧪 Fertilizante Comum (+0.5x Vel)', cost: 45, type: 'buff', duration: 120, speed: 0.5, buffKey: 'Normal', noStack: false },
             { id: 'fert_super', name: '⚡ Hiper-Nutriente (+2.0x Vel)', cost: 120, type: 'buff', duration: 15, speed: 0.2, buffKey: 'Super', noStack: true }
         ];
 
-        // Valores anteriores recuperados e balanceados com a chance de 40% (0.40)
         const magicItems = [
             { id: 'potion_cosmic', name: 'Essência de Buraco Negro (Alta Mutação)', cost: 130, duration: 45, type: 'magic_buff', buffKey: 'Cosmic', label: '🌌 Altar Cósmico' },
             { id: 'potion_lightning', name: 'Encantamento Tempestuoso (40% Elétrico)', cost: 180, duration: 30, type: 'magic_buff', buffKey: 'ForceLightning', label: '⚡ Fúria Elétrica' },
@@ -304,25 +294,25 @@
             backpack[itemKey]++;
         }
 
+        // NOVO BALANCEAMENTO INTERNO: Mutações raras como congelada/divina agora exigem roletas muito difíceis
         function generateMutation() {
-            // Chance de 40% ativa nas poções correspondentes do Altar Místico
             if (activeBuffs['ForceDivine'] && activeBuffs['ForceDivine'] > 0 && Math.random() < 0.40) return 'divine';
             if (activeBuffs['ForceFrozen'] && activeBuffs['ForceFrozen'] > 0 && Math.random() < 0.40) return 'frozen';
             if (activeBuffs['ForceLightning'] && activeBuffs['ForceLightning'] > 0 && Math.random() < 0.40) return 'lightning';
 
-            let currentChance = gameState.mutationChance;
-            if (activeBuffs['Cosmic'] && activeBuffs['Cosmic'] > 0) currentChance = 0.55;
+            let currentChance = gameState.mutationChance; 
+            if (activeBuffs['Cosmic'] && activeBuffs['Cosmic'] > 0) currentChance = 0.35; 
 
             let roll = Math.random();
             if (roll < currentChance) {
                 let subRoll = Math.random();
-                if (subRoll < 0.25) return 'golden';
-                if (subRoll < 0.50) return 'toxic';
-                if (subRoll < 0.70) return 'lightning';
-                if (subRoll < 0.85) return 'frozen';
-                if (subRoll < 0.93) return 'infernal';
-                if (subRoll < 0.98) return 'cosmic'; 
-                return 'divine'; 
+                if (subRoll < 0.50) return 'toxic';       // 50% de virar tóxica (comum)
+                if (subRoll < 0.80) return 'golden';      // 30% dourada
+                if (subRoll < 0.92) return 'lightning';   // 12% elétrica
+                if (subRoll < 0.97) return 'frozen';      // 5% congelada (RARA)
+                if (subRoll < 0.99) return 'infernal';    // 2% infernal (MUITO RARA)
+                if (subRoll < 0.998) return 'cosmic';     // Lendária
+                return 'divine';                          // Divina Mítica
             }
             return null;
         }
@@ -333,7 +323,10 @@
             let oldPlots = [...plots];
             plots = [];
 
-            for(let i = 0; i < gameState.maxPlots; i++) {
+            // Travado em no máximo 15 lotes para caber com folga nas dimensões da tela
+            let finalPlotsCount = Math.min(gameState.maxPlots, 15);
+
+            for(let i = 0; i < finalPlotsCount; i++) {
                 let plotDiv = document.createElement('div');
                 plotDiv.className = 'plot';
                 plotDiv.id = `plot-${i}`;
@@ -463,51 +456,78 @@
                 if (item.type === 'semente') {
                     document.getElementById('selected-seed-text').innerText = `Semente de ${fruitData[baseKey].name} (${item.qty})`;
                 } else {
-                    document.getElementById('selected-seed-text').innerText = `${item.data.fullName} [Pronta p/ Venda]`;
+                    document.getElementById('selected-seed-text').innerText = `${item.data.fullName} [Pronta]`;
                 }
             } else {
                 document.getElementById('selected-seed-text').innerText = "Mão Vazia";
             }
         }
 
-        function sellCollectedFruits() {
+        // NOVO NPC COMPRADOR (SEU CHICO): Executa as liquidações do inventário
+        function openChicoComprador() {
+            let content = document.getElementById('modal-content');
             let totalProfit = 0;
+            let itemsCount = 0;
+
             for (let i = 0; i < 8; i++) {
                 if (hotbar[i] && hotbar[i].type === 'fruta') {
-                    totalProfit += hotbar[i].data.price;
-                    hotbar[i] = { id: null, qty: 0, type: '', data: null };
+                    totalProfit += hotbar[i].data.price * 1.25; // 25% de bônus vendendo pessoalmente para o Seu Chico
+                    itemsCount += hotbar[i].qty;
                 }
             }
-            
             Object.keys(backpack).forEach(key => {
                 if (key.endsWith('_fruta') && backpack[key] > 0) {
                     let base = key.split('_')[0];
-                    totalProfit += (fruitData[base].basePrice * 1.2) * backpack[key];
-                    backpack[key] = 0;
+                    totalProfit += (fruitData[base].basePrice * 1.35) * backpack[key];
+                    itemsCount += backpack[key];
                 }
             });
 
-            if (totalProfit > 0) {
-                gameState.coins += totalProfit;
-                alert(`💰 Mercado Pago: Você vendeu toda a sua colheita por +${Math.floor(totalProfit)} moedas!`);
-                updateUI();
-                updateHotbarVisuals();
+            document.getElementById('modal-title').innerText = "Seu Chico Comprador";
+            document.getElementById('modal-tabs').innerHTML = '';
+            
+            if(itemsCount > 0) {
+                content.innerHTML = `
+                    <div style="text-align:center; padding:15px;">
+                        <p style="font-size:14px; color:#f4ecd8;">"Opa meu jovem! Vejo que você trouxe <b>${itemsCount}</b> vegetais frescos da horta."</p>
+                        <p style="font-size:16px; color:#ffcc00; font-weight:bold;">Valor avaliado: ${Math.floor(totalProfit)} moedas! 🪙</p>
+                        <button class="buy-btn" style="background:#4caf50; border-color:#2e7d32; margin-top:15px; padding:10px 20px;" onclick="confirmChicoSale(${totalProfit})">💵 Vender Tudo da Sacola</button>
+                    </div>
+                `;
             } else {
-                alert("❌ Você não possui nenhuma fruta colhida para vender nos seus slots rápidos da barra!");
+                content.innerHTML = `
+                    <div style="text-align:center; padding:15px; color:#ff4444;">
+                        <p>"Você não tem nenhuma fruta ou vegetal colhido na hotbar ou na mochila agora. Volte quando colher!"</p>
+                    </div>
+                `;
             }
+        }
+
+        function confirmChicoSale(profit) {
+            for (let i = 0; i < 8; i++) {
+                if (hotbar[i] && hotbar[i].type === 'fruta') hotbar[i] = { id: null, qty: 0, type: '', data: null };
+            }
+            Object.keys(backpack).forEach(key => { if(key.endsWith('_fruta')) backpack[key] = 0; });
+            
+            gameState.coins += profit;
+            alert(`💵 Venda concluída! Seu Chico guardou os alimentos e lhe pagou +${Math.floor(profit)} moedas.`);
+            updateUI(); updateHotbarVisuals(); closeModal();
         }
 
         function handleNPCDetection() {
             let tiaoDiv = document.getElementById('npc-tiao');
             let magoDiv = document.getElementById('npc-mago');
+            let chicoDiv = document.getElementById('npc-chico');
             let hackerDiv = document.getElementById('npc-hacker');
 
             let tiaoDist = Math.sqrt(Math.pow(player.x - tiaoDiv.offsetLeft, 2) + Math.pow(player.y - tiaoDiv.offsetTop, 2));
             let magoDist = Math.sqrt(Math.pow(player.x - magoDiv.offsetLeft, 2) + Math.pow(player.y - magoDiv.offsetTop, 2));
+            let chicoDist = Math.sqrt(Math.pow(player.x - chicoDiv.offsetLeft, 2) + Math.pow(player.y - chicoDiv.offsetTop, 2));
             let hackerDist = Math.sqrt(Math.pow(player.x - hackerDiv.offsetLeft, 2) + Math.pow(player.y - hackerDiv.offsetTop, 2));
 
             if (tiaoDist < 70) openNPCModal('tiao');
             else if (magoDist < 70) openNPCModal('mago');
+            else if (chicoDist < 70) openNPCModal('chico');
             else if (hackerDist < 70) openNPCModal('hacker');
         }
 
@@ -529,6 +549,8 @@
             } else if (npcType === 'mago') {
                 title.innerText = "Altar do Mago Místico";
                 renderMagoShop();
+            } else if (npcType === 'chico') {
+                openChicoComprador();
             } else if (npcType === 'hacker') {
                 title.innerText = "Mainframe Hacker Terminal";
                 if (!gameState.hackerUnlocked) {
@@ -585,7 +607,7 @@
                 content.innerHTML += `
                     <div class="shop-item">
                         <div class="item-info"><span class="item-icon">🔮</span>
-                        <div class="item-details"><strong>${m.name}</strong><p>Chance: 40% | Duração: ${m.duration}s | Custo: ${m.cost}🪙</p></div></div>
+                        <div class="item-details"><strong>${m.name}</strong><p>Chance Altar: 40% | Duração: ${m.duration}s | Custo: ${m.cost}🪙</p></div></div>
                         <button class="buy-btn" style="background:#6a329b; border-color:#3c165a;" onclick="buyItem('magic',${idx},${m.cost})">Conjurar</button>
                     </div>`;
             });
@@ -622,31 +644,10 @@
             let fSuper = upgrades.find(u => u.id === 'fert_super');
 
             content.innerHTML = `
-                <div style="border-bottom: 2px solid #00ff00; padding-bottom:4px; margin-bottom:10px; color:#00ff00; font-weight:bold; font-size:12px;">[ATRIBUTOS GLOBAIS DE SISTEMA]</div>
                 <div class="adm-field"><label>Saldo Monetário do Jogador:</label><input type="number" id="h-coins" value="${gameState.coins}"></div>
                 <div class="adm-field"><label>Velocidade Vetorial do Jogador:</label><input type="number" id="h-speed" value="${player.speed}"></div>
                 <div class="adm-field"><label>Limite Alocado de Terrenos:</label><input type="number" id="h-plots" value="${gameState.maxPlots}"></div>
-                <div class="adm-field"><label>Taxa de Mutação Genética Base (0.0 a 1.0):</label><input type="number" id="h-mutation" value="${gameState.mutationChance}" step="0.05"></div>
-                
-                <div style="border-bottom: 2px solid #00ff00; padding-bottom:4px; margin-top:10px; margin-bottom:10px; color:#00ff00; font-weight:bold; font-size:12px;">[MODIFICADORES DE INSULINA DO ADUBO]</div>
-                <div style="display:flex; gap:10px;">
-                    <div class="adm-field" style="flex:1;"><label>Duração Ruim:</label><input type="number" id="h-ruim-dur" value="${fRuim.duration}"></div>
-                    <div class="adm-field" style="flex:1;"><label>Vel Ruim:</label><input type="number" id="h-ruim-sp" value="${fRuim.speed}"></div>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <div class="adm-field" style="flex:1;"><label>Duração Normal:</label><input type="number" id="h-norm-dur" value="${fNormal.duration}"></div>
-                    <div class="adm-field" style="flex:1;"><label>Vel Normal:</label><input type="number" id="h-norm-sp" value="${fNormal.speed}"></div>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <div class="adm-field" style="flex:1;"><label>Duração Super:</label><input type="number" id="h-super-dur" value="${fSuper.duration}"></div>
-                    <div class="adm-field" style="flex:1;"><label>Vel Super:</label><input type="number" id="h-super-sp" value="${fSuper.speed}"></div>
-                </div>
-
-                <div style="border-bottom: 2px solid #00ff00; padding-bottom:4px; margin-top:10px; margin-bottom:10px; color:#00ff00; font-weight:bold; font-size:12px;">[INJEÇÃO FORÇADA DE SEVERIDADE]</div>
-                <div class="adm-field">
-                    <select id="h-type">${Object.keys(fruitData).map(k=>`<option value="${k}_semente">${fruitData[k].name}</option>`).join('')}</select>
-                    <input type="number" id="h-qty" value="1" placeholder="Quantidade">
-                </div>
+                <div class="adm-field"><label>Taxa de Mutação Genética Base (0.0 a 1.0):</label><input type="number" id="h-mutation" value="${gameState.mutationChance}" step="0.01"></div>
                 <button class="buy-btn" style="background:#111; color:#00ff00; border-color:#00ff00;" onclick="executeHackerCheats()">INJETAR PARÂMETROS</button>
             `;
         }
@@ -656,22 +657,6 @@
             player.speed = parseFloat(document.getElementById('h-speed').value) || player.speed;
             gameState.maxPlots = parseInt(document.getElementById('h-plots').value) || gameState.maxPlots;
             gameState.mutationChance = parseFloat(document.getElementById('h-mutation').value) || gameState.mutationChance;
-
-            let fRuim = upgrades.find(u => u.id === 'fert_ruim');
-            let fNormal = upgrades.find(u => u.id === 'fert_normal');
-            let fSuper = upgrades.find(u => u.id === 'fert_super');
-
-            fRuim.duration = parseInt(document.getElementById('h-ruim-dur').value) || fRuim.duration;
-            fRuim.speed = parseFloat(document.getElementById('h-ruim-sp').value) || fRuim.speed;
-            fNormal.duration = parseInt(document.getElementById('h-norm-dur').value) || fNormal.duration;
-            fNormal.speed = parseFloat(document.getElementById('h-norm-sp').value) || fNormal.speed;
-            fSuper.duration = parseInt(document.getElementById('h-super-dur').value) || fSuper.duration;
-            fSuper.speed = parseFloat(document.getElementById('h-super-sp').value) || fSuper.speed;
-
-            let qty = parseInt(document.getElementById('h-qty').value) || 0;
-            let type = document.getElementById('h-type').value;
-            for(let i=0; i<qty; i++) { addItemToCollectedHotbar(type, 'semente', null); }
-            
             createPlots(); updateUI(); updateHotbarVisuals(); closeModal();
         }
 
@@ -726,7 +711,8 @@
             if (keysPressed['s'] || keysPressed['arrowdown']) player.y += player.speed;
             
             player.x = Math.max(0, Math.min(window.innerWidth - 50, player.x));
-            player.y = Math.max(0, Math.min(window.innerHeight - 50, player.y));
+            // Trava o movimento do jogador para não sumir atrás da hotbar
+            player.y = Math.max(0, Math.min(window.innerHeight - 130, player.y));
 
             let pEl = document.getElementById('player');
             if (pEl) {
