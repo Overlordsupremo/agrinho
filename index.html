@@ -7,15 +7,15 @@
     <style>
         * { box-sizing: border-box; user-select: none; }
         body { margin: 0; padding: 0; background-color: #2e5c1e; font-family: 'Arial', sans-serif; overflow: hidden; }
-        
+       
         /* UI Principal */
         #ui-top { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 15px; border-radius: 10px; border: 3px solid #ffd700; z-index: 10; min-width: 200px; }
         #ui-top h2 { margin: 0 0 5px 0; color: #5cb85c; font-size: 20px; }
         #ui-top p { margin: 5px 0; font-size: 16px; font-weight: bold; }
-        
+       
         /* Tabuleiro do Jogo */
         #game-canvas { width: 100vw; height: 100vh; position: relative; background: #4a7c3a; background-image: radial-gradient(#558c44 20%, transparent 20%), radial-gradient(#558c44 20%, transparent 20%); background-size: 40px 40px; background-position: 0 0, 20px 20px; }
-        
+       
         /* Personagens */
         .character { position: absolute; width: 45px; height: 45px; border-radius: 50%; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 4px 5px rgba(0,0,0,0.3); }
         #player { background: #ffcc00; border: 3px solid #ff9900; z-index: 5; }
@@ -28,7 +28,7 @@
         #farm-zones { position: absolute; top: 100px; left: 400px; display: grid; grid-template-columns: repeat(3, 100px); gap: 15px; }
         .plot { width: 100px; height: 100px; background: #654321; border: 4px solid #4a3018; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
         .plot.ready-to-plant { border-color: #8bc34a; }
-        
+       
         /* Frutas e Plantas */
         .crop { font-size: 40px; animation: pulse 1s infinite alternate; position: relative; display: flex; flex-direction: column; align-items: center; }
         .crop.growing { filter: grayscale(50%) brightness(70%) scale(0.6); }
@@ -42,7 +42,7 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
         .modal-header h3 { margin: 0; color: #4a3018; }
         .close-btn { background: #d9534f; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        
+       
         .shop-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 10px; background: #f0f0f0; border: 1px solid #ccc; cursor: pointer; font-weight: bold; border-radius: 5px; }
         .tab-btn.active { background: #5cb85c; color: white; border-color: #4cae4c; }
@@ -56,7 +56,7 @@
         .item-details strong { font-size: 15px; color: #333; }
         .buy-btn { background: #5cb85c; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .buy-btn:disabled { background: #ccc; cursor: not-allowed; }
-        
+       
         /* Notificações e Mão */
         #holding-ui { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; display: none; z-index: 10; border: 2px solid #5cb85c; }
         #shop-timer { color: #ff3333; font-size: 13px; font-weight: bold; margin-top: 2px; }
@@ -105,7 +105,7 @@
         let player = { x: 250, y: 250, speed: 8, holding: null };
         let gameState = { coins: 100, currentSeed: null, maxPlots: 3, speedMultiplier: 1, weightBonus: 0 };
         let inventory = {}; // Guarda a quantidade de sementes compradas
-        
+       
         // Base de Dados das Frutas (Mais de 7 Frutas com especificações de Peso Mínimo e Valores)
         const fruitData = {
             maca: { name: "Maçã", icon: "🍎", basePrice: 15, weightMin: 0.3, time: 5, chance: 100 },
@@ -134,7 +134,7 @@
             createPlots();
             refreshShopSeeds();
             updateUI();
-            
+           
             // Loop do Timer da Loja
             setInterval(() => {
                 shopTimer--;
@@ -157,14 +157,14 @@
             const container = document.getElementById('farm-zones');
             container.innerHTML = '';
             plots = [];
-            
+           
             for(let i = 0; i < gameState.maxPlots; i++) {
                 let plotDiv = document.createElement('div');
                 plotDiv.className = 'plot';
                 plotDiv.id = `plot-${i}`;
                 plotDiv.innerHTML = `<span style="color:#8c6239; font-size:12px; position:absolute; bottom:5px;">Lote ${i+1}</span>`;
                 container.appendChild(plotDiv);
-                
+               
                 plots.push({
                     element: plotDiv,
                     status: 'empty', // empty, growing, ready
@@ -188,7 +188,7 @@
             });
             // Garante que haja pelo menos 4 tipos de sementes sempre
             if(currentStoreSeeds.length < 4) currentStoreSeeds = ['maca', 'banana', 'laranja', 'morango'];
-            
+           
             if(document.getElementById('shop-modal').style.display === 'block') {
                 switchTab('seeds');
             }
