@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fazendinha do Agrinho - Ultimate Edition</title>
+    <title>Fazendinha do Agrinho - Inventory & Buffs Edition</title>
     <style>
         * { box-sizing: border-box; user-select: none; }
         body { margin: 0; padding: 0; background-color: #2e5c1e; font-family: 'Arial', sans-serif; overflow: hidden; }
         
-        /* UI Principal Superior */
+        /* UI Superior */
         #ui-top { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 10px; border: 3px solid #ffd700; z-index: 10; min-width: 250px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         #ui-top h2 { margin: 0 0 5px 0; color: #5cb85c; font-size: 20px; text-align: center; border-bottom: 1px solid #444; padding-bottom: 5px; }
         #ui-top p { margin: 6px 0; font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; }
         #shop-timer { color: #ff5555; font-size: 12px; font-weight: bold; margin-top: 5px; text-align: center; background: rgba(255,0,0,0.1); padding: 2px; border-radius: 3px; }
-        #active-buffs { margin-top: 5px; font-size: 11px; color: #5cc8ff; }
+        #active-buffs { margin-top: 5px; font-size: 11px; color: #5cc8ff; line-height: 1.4; }
 
-        /* Barra de Acesso Rápido (Hotbar) */
+        /* Hotbar de 8 slots na parte inferior */
         #hotbar-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; background: rgba(0,0,0,0.85); padding: 10px; border-radius: 12px; border: 3px solid #654321; z-index: 20; }
         .hotbar-slot { width: 55px; height: 55px; background: #332211; border: 3px solid #553311; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; color: white; font-weight: bold; transition: all 0.2s; }
         .hotbar-slot.selected { border-color: #ffd700; background: #554422; transform: scale(1.08); box-shadow: 0 0 10px #ffd700; }
@@ -23,10 +23,10 @@
         .hotbar-slot .slot-icon { font-size: 22px; margin-top: 4px; }
         .hotbar-slot .slot-qty { position: absolute; bottom: 2px; right: 4px; font-size: 11px; color: #ffcc00; }
 
-        /* Tabuleiro do Jogo */
+        /* Tela de Jogo */
         #game-canvas { width: 100vw; height: 100vh; position: relative; background: #4a7c3a; background-image: radial-gradient(#558c44 20%, transparent 20%), radial-gradient(#558c44 20%, transparent 20%); background-size: 40px 40px; background-position: 0 0, 20px 20px; }
         
-        /* Personagens e NPCs */
+        /* Personagem e NPCs */
         .character { position: absolute; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.4); }
         #player { background: #ffcc00; border: 3px solid #ff9900; z-index: 5; font-size: 26px; }
         
@@ -36,25 +36,30 @@
         #npc-hacker { background: #222; border: 3px solid #00ff00; bottom: 120px; left: 40px; position: absolute; }
         .npc-label { position: absolute; top: -25px; background: white; color: black; padding: 2px 5px; border-radius: 5px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.2); text-align: center; }
 
-        /* Lotes de Terra Dinâmicos */
+        /* Lotes */
         #farm-zones { position: absolute; top: 220px; left: 320px; display: flex; flex-wrap: wrap; gap: 15px; max-width: calc(100vw - 360px); }
         .plot { width: 90px; height: 90px; background: #654321; border: 4px solid #4a3018; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
         .plot:hover { border-color: #8bc34a; }
         
-        /* Frutas e Efeitos de Mutações */
+        /* Plantações e Efeitos Visuais das Mutações */
         .crop { font-size: 38px; animation: pulse 1s infinite alternate; position: relative; display: flex; flex-direction: column; align-items: center; }
         .crop.growing { filter: grayscale(50%) brightness(70%) scale(0.6); animation: none; }
-        
-        /* Tipos de Efeitos Visuais de Mutação */
         .crop.golden { filter: drop-shadow(0px 0px 12px #ffd700) brightness(1.3); }
         .crop.cosmic { filter: drop-shadow(0px 0px 15px #00ffff) hue-rotate(90deg); }
         .crop.infernal { filter: drop-shadow(0px 0px 15px #ff3300) brightness(1.2); animation: pulse 0.4s infinite alternate; }
         .crop.toxic { filter: drop-shadow(0px 0px 10px #00ff00) grayscale(30%); }
+        
+        /* Novas Mutações Visuais */
+        .crop.lightning { filter: drop-shadow(0px 0px 14px #33ccff) brightness(1.4); animation: glitch 0.3s infinite alternate; }
+        .crop.frozen { filter: drop-shadow(0px 0px 12px #aaddff) saturate(0.5) brightness(1.2); }
+        .crop.divine { filter: drop-shadow(0px 0px 18px #ff00ff) drop-shadow(0px 0px 5px #ffd700); animation: pulse 0.6s infinite alternate; }
+
+        @keyframes glitch { 0% { transform: skewX(-3deg) scale(0.98); } 100% { transform: skewX(3deg) scale(1.02); } }
 
         .timer-bar { position: absolute; bottom: -8px; left: 0; width: 100%; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
         .timer-fill { height: 100%; width: 0%; background: #4caf50; }
 
-        /* Modais Modernizados */
+        /* Menus / Modais */
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 4px solid #4a3018; border-radius: 15px; padding: 20px; z-index: 100; width: 90%; max-width: 550px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 80vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
         .close-btn { background: #d9534f; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
@@ -71,12 +76,12 @@
         .buy-btn { background: #5cb85c; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .buy-btn:disabled { background: #ccc; cursor: not-allowed; }
         
-        /* Formulários Adm */
         .adm-field { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
         .adm-field label { font-weight: bold; color: #333; font-size: 13px; }
         .adm-field input, .adm-field select { padding: 8px; border: 2px solid #ccc; border-radius: 5px; }
 
         #holding-ui { position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: white; padding: 8px 20px; border-radius: 20px; font-weight: bold; display: none; z-index: 10; border: 2px solid #5cb85c; }
+        @keyframes pulse { 0% { transform: scale(0.95); } 100% { transform: scale(1.05); } }
     </style>
 </head>
 <body>
@@ -84,7 +89,7 @@
     <div id="ui-top">
         <h2>Fazenda Agrinho</h2>
         <p><span>🪙 Moedas:</span> <span id="coin-count">100</span></p>
-        <p><span>🎒 Semente Hotbar:</span> <span id="selected-seed-text">Nenhuma</span></p>
+        <p><span>🎒 Item Equipado:</span> <span id="selected-seed-text">Nenhum</span></p>
         <div id="active-buffs"></div>
         <div id="shop-timer">Loja reestoca em: 03:00</div>
     </div>
@@ -108,7 +113,7 @@
     <div id="game-canvas">
         <div id="player" style="top: 300px; left: 250px;">👨‍🌾</div>
         
-        <div id="npc-tiao" class="character npc">Store🏪<span class="npc-label">Mercado Tião (E)</span></div>
+        <div id="npc-tiao" class="character npc">🏪<span class="npc-label">Mercado Tião (E)</span></div>
         <div id="npc-mago" class="character npc">🧙‍♂️<span class="npc-label">Mago Místico (E)</span></div>
         <div id="npc-hacker" class="character npc">🕵️‍♂️<span class="npc-label">Painel Hacker (E)</span></div>
         
@@ -126,25 +131,25 @@
 
     <script>
         let player = { x: 250, y: 300, speed: 5, holding: null, activeHotbarSlot: 0 };
-        let gameState = { coins: 100, maxPlots: 3, speedMultiplier: 1, weightBonus: 0, mutationChance: 0.15, hackerUnlocked: false };
+        let gameState = { coins: 150, maxPlots: 3, speedMultiplier: 1.0, weightBonus: 0, mutationChance: 0.15, hackerUnlocked: false };
         
-        // Inventário Gigante Expandido
-        let inventory = {
-            maca: 2, banana: 0, laranja: 0, morango: 0, melancia: 0, abacaxi: 0, 
+        let backpack = {
+            maca: 0, banana: 0, laranja: 0, morango: 0, melancia: 0, abacaxi: 0, 
             uva: 0, coco: 0, kiwi: 0, cereja: 0, pitaya: 0, estelar: 0
         };
 
-        // Mapeamento da Hotbar (Quais itens estão associados aos 8 slots)
-        let hotbarMapping = ['maca', 'banana', 'laranja', 'morango', 'melancia', 'abacaxi', 'uva', 'coco'];
+        let hotbar = [
+            { id: null, qty: 0 }, { id: null, qty: 0 }, { id: null, qty: 0 }, { id: null, qty: 0 },
+            { id: null, qty: 0 }, { id: null, qty: 0 }, { id: null, qty: 0 }, { id: null, qty: 0 }
+        ];
 
         let keysPressed = {};
         let shopStock = {};
         let currentStoreSeeds = [];
         let shopTimer = 180;
         let plots = [];
-        let activeBuffsList = [];
+        let activeBuffs = {}; 
 
-        // 12 Frutas Disponíveis
         const fruitData = {
             maca: { name: "Maçã", icon: "🍎", basePrice: 15, weightMin: 0.3, time: 4, chance: 100 },
             banana: { name: "Banana", icon: "🍌", basePrice: 20, weightMin: 0.2, time: 6, chance: 100 },
@@ -161,13 +166,20 @@
         };
 
         const upgrades = [
-            { id: 'expand', name: 'Expandir Terreno (+1 Lote para Frente)', cost: 150, action: () => { gameState.maxPlots++; createPlots(); } },
-            { id: 'vitamin', name: 'Super Vitaminas (+600g mínimo em frutos)', cost: 220, action: () => { gameState.weightBonus += 0.6; } }
+            { id: 'expand', name: 'Expandir Lote (+1 Terreno)', cost: 150, type: 'perm', action: () => { gameState.maxPlots++; createPlots(); } },
+            { id: 'vitamin', name: 'Vitaminas Orgânicas (+600g peso)', cost: 220, type: 'perm', action: () => { gameState.weightBonus += 0.6; } },
+            
+            { id: 'fert_ruim', name: '💩 Fertilizante Ruim (+0.2x Vel)', cost: 15, type: 'buff', duration: 60, speed: 0.8, buffKey: 'Ruim', noStack: false },
+            { id: 'fert_normal', name: '🧪 Fertilizante Normal (+0.5x Vel)', cost: 45, type: 'buff', duration: 120, speed: 0.5, buffKey: 'Normal', noStack: false },
+            { id: 'fert_super', name: '⚡ Super Fertilizante (+2.0x Vel)', cost: 120, type: 'buff', duration: 15, speed: 0.2, buffKey: 'Super', noStack: true }
         ];
 
+        // NOVA LOJA MÁGICA COM AS 3 NOVAS MUTAÇÕES EXCLUSIVAS
         const magicItems = [
-            { id: 'potion_cosmic', name: 'Poção de Freqüência Cósmica (Mais chances de Mutações Lendárias por 45s)', cost: 130, action: () => { applyBuff('Frequência Cósmica', 45, () => { gameState.mutationChance = 0.50; }, () => { gameState.mutationChance = 0.15; }); } },
-            { id: 'fertilizer_blitz', name: 'Elixir do Tempo (Frutos crescem em 0.5s por 30s)', cost: 100, action: () => { applyBuff('Elixir Temporal', 30, () => { gameState.speedMultiplier = 0.05; }, () => { gameState.speedMultiplier = 1; }); } }
+            { id: 'potion_cosmic', name: 'Poção Cósmica (Alta Mutação)', cost: 130, duration: 45, type: 'magic_buff', buffKey: 'Cosmic', label: '🌌 Altar Cósmico' },
+            { id: 'potion_lightning', name: 'Encantamento Tempestuoso (100% Elétrico)', cost: 180, duration: 30, type: 'magic_buff', buffKey: 'ForceLightning', label: '⚡ Fúria Elétrica' },
+            { id: 'potion_frozen', name: 'Elixir do Inverno Crio (100% Congelado)', cost: 250, duration: 30, type: 'magic_buff', buffKey: 'ForceFrozen', label: '❄️ Congelamento' },
+            { id: 'potion_divine', name: 'Bênção Suprema Divina (100% Divino)', cost: 500, duration: 20, type: 'magic_buff', buffKey: 'ForceDivine', label: '👑 Aura Divina' }
         ];
 
         function init() {
@@ -184,6 +196,35 @@
             }, 1000);
 
             setInterval(() => {
+                let currentSpeedMod = 1.0;
+                let activeBuffDescriptions = [];
+
+                let speedSuper = upgrades.find(u => u.id === 'fert_super').speed;
+                let speedNormal = upgrades.find(u => u.id === 'fert_normal').speed;
+                let speedRuim = upgrades.find(u => u.id === 'fert_ruim').speed;
+
+                if (activeBuffs['Super'] && activeBuffs['Super'] > 0) {
+                    activeBuffs['Super']--; currentSpeedMod = speedSuper;
+                    activeBuffDescriptions.push(`⚡ Super Fertilizante (${activeBuffs['Super']}s)`);
+                } else if (activeBuffs['Normal'] && activeBuffs['Normal'] > 0) {
+                    activeBuffs['Normal']--; currentSpeedMod = speedNormal;
+                    activeBuffDescriptions.push(`🧪 Fertilizante Normal (${activeBuffs['Normal']}s)`);
+                } else if (activeBuffs['Ruim'] && activeBuffs['Ruim'] > 0) {
+                    activeBuffs['Ruim']--; currentSpeedMod = speedRuim;
+                    activeBuffDescriptions.push(`💩 Fertilizante Ruim (${activeBuffs['Ruim']}s)`);
+                }
+                
+                // Gerenciamento de Timers das Mutações Mágicas
+                magicItems.forEach(m => {
+                    if (activeBuffs[m.buffKey] && activeBuffs[m.buffKey] > 0) {
+                        activeBuffs[m.buffKey]--;
+                        activeBuffDescriptions.push(`${m.label} (${activeBuffs[m.buffKey]}s)`);
+                    }
+                });
+
+                gameState.speedMultiplier = currentSpeedMod;
+                document.getElementById('active-buffs').innerHTML = activeBuffDescriptions.length ? "✨ <b>Efeitos Ativos:</b><br>" + activeBuffDescriptions.join("<br>") : "";
+
                 plots.forEach(plot => {
                     if (plot.status === 'growing') {
                         plot.timer -= 0.2;
@@ -208,9 +249,7 @@
 
             window.addEventListener('keydown', e => {
                 keysPressed[e.key.toLowerCase()] = true;
-                if (['1','2','3','4','5','6','7','8'].includes(e.key)) {
-                    selectSlot(parseInt(e.key) - 1);
-                }
+                if (['1','2','3','4','5','6','7','8'].includes(e.key)) selectSlot(parseInt(e.key) - 1);
                 if (e.key.toLowerCase() === 'e') handleNPCDetection();
             });
             window.addEventListener('keyup', e => { keysPressed[e.key.toLowerCase()] = false; });
@@ -218,43 +257,48 @@
             gameLoop();
         }
 
-        // Sistema de Mutação Avançado (4 tipos)
+        function addSeedToInventory(seedKey) {
+            for (let i = 0; i < 8; i++) {
+                if (hotbar[i].id === seedKey) {
+                    hotbar[i].qty++;
+                    return;
+                }
+            }
+            for (let i = 0; i < 8; i++) {
+                if (hotbar[i].id === null) {
+                    hotbar[i].id = seedKey;
+                    hotbar[i].qty = 1;
+                    return;
+                }
+            }
+            backpack[seedKey]++;
+        }
+
+        // LÓGICA DE GERAÇÃO ATUALIZADA COM AS NOVAS MUTAÇÕES E FORÇAS MÁGICAS
         function generateMutation() {
+            // Verifica se há alguma poção do Mago ativa forçando mutação de 100%
+            if (activeBuffs['ForceDivine'] && activeBuffs['ForceDivine'] > 0) return 'divine';
+            if (activeBuffs['ForceFrozen'] && activeBuffs['ForceFrozen'] > 0) return 'frozen';
+            if (activeBuffs['ForceLightning'] && activeBuffs['ForceLightning'] > 0) return 'lightning';
+
+            let currentChance = gameState.mutationChance;
+            if (activeBuffs['Cosmic'] && activeBuffs['Cosmic'] > 0) currentChance = 0.55;
+
             let roll = Math.random();
-            if (roll < gameState.mutationChance) {
+            if (roll < currentChance) {
                 let subRoll = Math.random();
-                if (subRoll < 0.50) return 'golden';     // 50% das mutações
-                if (subRoll < 0.80) return 'cosmic';     // 30% das mutações
-                if (subRoll < 0.95) return 'infernal';   // 15% das mutações
-                return 'toxic';                          // 5% das mutações
+                // Roleta balanceada incluindo as novas mutações nativamente
+                if (subRoll < 0.25) return 'golden';
+                if (subRoll < 0.45) return 'cosmic';
+                if (subRoll < 0.65) return 'lightning';
+                if (subRoll < 0.80) return 'frozen';
+                if (subRoll < 0.93) return 'infernal';
+                if (subRoll < 0.97) return 'divine';
+                return 'toxic';
             }
             return null;
         }
 
-        function applyBuff(name, duration, onStart, onEnd) {
-            onStart();
-            let buff = { name, timeLeft: duration, onEnd };
-            activeBuffsList.push(buff);
-            let cd = setInterval(() => {
-                buff.timeLeft--;
-                renderBuffsUI();
-                if(buff.timeLeft <= 0) {
-                    clearInterval(cd);
-                    activeBuffsList = activeBuffsList.filter(b => b !== buff);
-                    buff.onEnd();
-                    renderBuffsUI();
-                }
-            }, 1000);
-            renderBuffsUI();
-        }
-
-        function renderBuffsUI() {
-            let container = document.getElementById('active-buffs');
-            if(activeBuffsList.length === 0) { container.innerHTML = ''; return; }
-            container.innerHTML = "✨ <b>Efeitos Ativos:</b><br>" + activeBuffsList.map(b => `⏱️ ${b.name} (${b.timeLeft}s)`).join('<br>');
-        }
-
-        // Cria terrenos para frente (impedindo transbordamento lateral do monitor)
         function createPlots() {
             const container = document.getElementById('farm-zones');
             container.innerHTML = '';
@@ -269,8 +313,7 @@
                 container.appendChild(plotDiv);
 
                 if (oldPlots[i]) {
-                    plots.push(oldPlots[i]);
-                    plots[i].element = plotDiv;
+                    plots.push(oldPlots[i]); plots[i].element = plotDiv;
                     if (plots[i].status !== 'empty') renderPlotAsset(plots[i]);
                 } else {
                     plots.push({ element: plotDiv, status: 'empty', fruit: null, timer: 0, mutationType: null, weight: 0 });
@@ -299,18 +342,17 @@
 
         function selectSlot(index) {
             player.activeHotbarSlot = index;
-            let slots = document.querySelectorAll('.hotbar-slot');
-            slots.forEach((s, idx) => s.classList.toggle('selected', idx === index));
+            document.querySelectorAll('.hotbar-slot').forEach((s, idx) => s.classList.toggle('selected', idx === index));
             updateUI();
         }
 
         function updateHotbarVisuals() {
             for (let i = 0; i < 8; i++) {
-                let itemKey = hotbarMapping[i];
                 let slot = document.getElementById(`slot-${i}`);
-                if (itemKey && fruitData[itemKey]) {
-                    slot.querySelector('.slot-icon').innerText = fruitData[itemKey].icon;
-                    slot.querySelector('.slot-qty').innerText = inventory[itemKey] || 0;
+                let item = hotbar[i];
+                if (item && item.id) {
+                    slot.querySelector('.slot-icon').innerText = fruitData[item.id].icon;
+                    slot.querySelector('.slot-qty').innerText = item.qty;
                 } else {
                     slot.querySelector('.slot-icon').innerText = '';
                     slot.querySelector('.slot-qty').innerText = '';
@@ -320,25 +362,31 @@
 
         function handlePlotInteraction(index) {
             let plot = plots[index];
-            let activeItemKey = hotbarMapping[player.activeHotbarSlot];
+            let activeSlotItem = hotbar[player.activeHotbarSlot];
 
-            if (plot.status === 'empty' && activeItemKey && inventory[activeItemKey] > 0) {
-                inventory[activeItemKey]--;
+            if (plot.status === 'empty' && activeSlotItem && activeSlotItem.id && activeSlotItem.qty > 0) {
                 plot.status = 'growing';
-                plot.fruit = activeItemKey;
+                plot.fruit = activeSlotItem.id;
                 plot.timer = fruitData[plot.fruit].time * gameState.speedMultiplier;
                 plot.mutationType = generateMutation();
                 plot.weight = (Math.random() * 1.5 + fruitData[plot.fruit].weightMin) + gameState.weightBonus;
+
+                activeSlotItem.qty--;
+                if (activeSlotItem.qty <= 0) { activeSlotItem.id = null; activeSlotItem.qty = 0; }
 
                 renderPlotAsset(plot);
                 updateUI();
                 updateHotbarVisuals();
             } else if (plot.status === 'ready' && !player.holding) {
-                let mult = 1.0;
-                let mutName = "";
+                let mult = 1.0, mutName = "";
+                
+                // Multiplicadores incluindo as novas qualidades
                 if (plot.mutationType === 'golden') { mult = 3.5; mutName = "✨ Dourado"; }
-                if (plot.mutationType === 'cosmic') { mult = 5.0; mutName = "🌌 Cósmico"; }
-                if (plot.mutationType === 'infernal') { mult = 8.0; mutName = "🔥 Infernal"; }
+                if (plot.mutationType === 'cosmic') { mult = 8.0; mutName = "🌌 Cósmico"; }
+                if (plot.mutationType === 'lightning') { mult = 4.0; mutName = "⚡ Elétrico"; }
+                if (plot.mutationType === 'frozen') { mult = 5.0; mutName = "❄️ Congelado"; }
+                if (plot.mutationType === 'infernal') { mult = 6.0; mutName = "🔥 Infernal"; }
+                if (plot.mutationType === 'divine') { mult = 12.0; mutName = "👑 Divino"; }
                 if (plot.mutationType === 'toxic') { mult = 0.5; mutName = "☣️ Tóxico"; }
 
                 player.holding = {
@@ -348,9 +396,7 @@
                     price: fruitData[plot.fruit].basePrice * mult * plot.weight
                 };
 
-                plot.status = 'empty';
-                plot.fruit = null;
-                plot.mutationType = null;
+                plot.status = 'empty'; plot.fruit = null; plot.mutationType = null;
                 plot.element.innerHTML = `<span style="color:#8c6239; font-size:11px; position:absolute; bottom:4px;">Lote</span>`;
                 updateUI();
             }
@@ -368,13 +414,14 @@
             if(currentStoreSeeds.length < 3) currentStoreSeeds = ['maca', 'banana', 'laranja'];
         }
 
+        // ... [Lógica de UI e Inventário Inalterada] ...
         function updateUI() {
             document.getElementById('coin-count').innerText = Math.floor(gameState.coins);
-            let activeItemKey = hotbarMapping[player.activeHotbarSlot];
-            if(activeItemKey) {
-                document.getElementById('selected-seed-text').innerText = `${fruitData[activeItemKey].name} (${inventory[activeItemKey]})`;
+            let item = hotbar[player.activeHotbarSlot];
+            if(item && item.id) {
+                document.getElementById('selected-seed-text').innerText = `${fruitData[item.id].name} (${item.qty})`;
             } else {
-                document.getElementById('selected-seed-text').innerText = "Vazio";
+                document.getElementById('selected-seed-text').innerText = "Vazio (Selecione sementes)";
             }
 
             if(player.holding) {
@@ -385,7 +432,6 @@
             }
         }
 
-        // Detecção e ativação individualizada de cada NPC
         function handleNPCDetection() {
             let tiaoDist = Math.sqrt(Math.pow(player.x - 120, 2) + Math.pow(player.y - 120, 2));
             let magoDist = Math.sqrt(Math.pow(player.x - (window.innerWidth - 100), 2) + Math.pow(player.y - 100, 2));
@@ -406,36 +452,27 @@
             if (npcType === 'tiao') {
                 title.innerText = "Mercado do Seu Tião";
                 tabs.innerHTML = `
-                    <button class="tab-btn active" onclick="renderTiaoShop('seeds')">🌱 Sementes</button>
-                    <button class="tab-btn" onclick="renderTiaoShop('upgrades')">⚙️ Melhorias</button>
-                    <button class="tab-btn" onclick="renderBagManagement()">🎒 Organizar Hotbar</button>
+                    <button class="tab-btn active" onclick="renderTiaoShop('seeds')">🌱 Comprar Sementes</button>
+                    <button class="tab-btn" onclick="renderTiaoShop('upgrades')">⚙️ Adubos e Melhorias</button>
+                    <button class="tab-btn" onclick="renderBackpackManagement()">🎒 Mochila de Reserva</button>
                 `;
                 renderTiaoShop('seeds');
             } else if (npcType === 'mago') {
-                title.innerText = "Altar Místico do Mago";
+                title.innerText = "Altar do Mago Místico";
                 renderMagoShop();
             } else if (npcType === 'hacker') {
-                title.innerText = "Acesso ao Mainframe Hacker";
+                title.innerText = "Mainframe Hacker Bypass";
                 if (!gameState.hackerUnlocked) {
-                    let pass = prompt("Insira a Senha do Hacker para desbloquear os Cheats:");
-                    if (pass === "agrinho2026") {
-                        gameState.hackerUnlocked = true;
-                        renderHackerPanel();
-                    } else {
-                        alert("Senha incorreta! Suma daqui.");
-                        closeModal();
-                    }
-                } else {
-                    renderHackerPanel();
-                }
+                    let pass = prompt("Insira a senha criptográfica:");
+                    if (pass === "agrinho2026") { gameState.hackerUnlocked = true; renderHackerPanel(); }
+                    else { alert("Incorreto."); closeModal(); }
+                } else { renderHackerPanel(); }
             }
         }
 
         function renderTiaoShop(section) {
             let content = document.getElementById('modal-content');
             content.innerHTML = '';
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(section === 'seeds' ? 'Sementes' : 'Melhorias')));
-
             if (section === 'seeds') {
                 currentStoreSeeds.forEach(k => {
                     let item = fruitData[k];
@@ -444,88 +481,177 @@
                     content.innerHTML += `
                         <div class="shop-item">
                             <div class="item-info"><span class="item-icon">${item.icon}</span>
-                            <div class="item-details"><strong>${item.name}</strong><p>Preço: ${cost}🪙 | Estoque: ${st}</p></div></div>
+                            <div class="item-details"><strong>Semente de ${item.name}</strong><p>Custo: ${cost}🪙 | Estoque Loja: ${st}</p></div></div>
                             <button class="buy-btn" ${st <= 0 ? 'disabled':''} onclick="buyItem('seed','${k}',${cost})">Comprar</button>
                         </div>`;
                 });
             } else {
                 upgrades.forEach((up, idx) => {
+                    let desc = up.type === 'buff' ? `Velocidade: ${up.speed}x | Duração Base: ${up.duration}s (${up.noStack ? 'NÃO acumula' : 'Acumula'})` : `Efeito permanente no mapa`;
                     content.innerHTML += `
                         <div class="shop-item">
                             <div class="item-info"><span class="item-icon">⚙️</span>
-                            <div class="item-details"><strong>${up.name}</strong><p>Custo: ${up.cost}🪙</p></div></div>
+                            <div class="item-details"><strong>${up.name}</strong><p>${desc} | Custo: ${up.cost}🪙</p></div></div>
                             <button class="buy-btn" onclick="buyItem('upgrade',${idx},${up.cost})">Adquirir</button>
                         </div>`;
                 });
             }
         }
 
+        // RENDER DA LOJA MÁGICA ATUALIZADO
         function renderMagoShop() {
             let content = document.getElementById('modal-content');
             content.innerHTML = '';
             magicItems.forEach((m, idx) => {
+                let mDesc = m.id === 'potion_cosmic' ? 'Aumenta consideravelmente mutações nativas.' : 'Garante 100% desta mutação ao plantar enquanto durar.';
                 content.innerHTML += `
                     <div class="shop-item">
                         <div class="item-info"><span class="item-icon">🔮</span>
-                        <div class="item-details"><strong>${m.name}</strong><p>Custo Altar: ${m.cost}🪙</p></div></div>
+                        <div class="item-details"><strong>${m.name}</strong><p>${mDesc}<br>Duração: ${m.duration}s | Custo: ${m.cost}🪙</p></div></div>
                         <button class="buy-btn" style="background:#9c27b0;" onclick="buyItem('magic',${idx},${m.cost})">Conjurar</button>
                     </div>`;
             });
         }
 
-        function renderBagManagement() {
+        function renderBackpackManagement() {
             let content = document.getElementById('modal-content');
-            content.innerHTML = `<h4>Vincular Frutas aos Slots da sua Hotbar:</h4>`;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.innerText.includes('Organizar')));
+            content.innerHTML = `<h4>🎒 Sua Mochila de Armazenamento Oculta:</h4><p style="font-size:11px; color:#666;">Clique para enviar da mochila direto para a hotbar.</p>`;
+            
+            Object.keys(backpack).forEach(key => {
+                let qty = backpack[key];
+                if(qty > 0) {
+                    content.innerHTML += `
+                        <div class="shop-item">
+                            <div class="item-info"><span class="item-icon">${fruitData[key].icon}</span>
+                            <div class="item-details"><strong>Sementes de ${fruitData[key].name}</strong><p>Guardadas: ${qty}</p></div></div>
+                            <button class="buy-btn" style="background:#0275d8;" onclick="moveBackpackToHotbar('${key}')">Mover p/ Hotbar</button>
+                        </div>`;
+                }
+            });
 
+            content.innerHTML += `<hr><h4 style="margin-top:15px;">📥 Limpar/Devolver Hotbar para Mochila:</h4>`;
             for(let i=0; i<8; i++) {
-                content.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#eee; padding:5px 10px; margin-bottom:5px; border-radius:5px;">
-                        <span><b>Slot ${i+1}:</b> ${hotbarMapping[i] ? fruitData[hotbarMapping[i]].name : 'Vazio'}</span>
-                        <select onchange="remapHotbar(${i}, this.value)">
-                            <option value="">Escolher Fruta...</option>
-                            ${Object.keys(fruitData).map(k => `<option value="${k}" ${hotbarMapping[i]===k?'selected':''}>${fruitData[k].name} (${inventory[k]})</option>`).join('')}
-                        </select>
-                    </div>`;
+                let item = hotbar[i];
+                if(item.id) {
+                    content.innerHTML += `
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:#eee; padding:6px 10px; margin-bottom:5px; border-radius:6px;">
+                            <span><b>Slot ${i+1}:</b> ${fruitData[item.id].icon} ${fruitData[item.id].name} (Qtd: ${item.qty})</span>
+                            <button class="close-btn" style="padding:4px 8px; font-size:11px;" onclick="moveHotbarToBackpack(${i})">Guardar Tudo</button>
+                        </div>`;
+                }
             }
         }
 
-        function remapHotbar(slotIdx, fruitKey) {
-            hotbarMapping[slotIdx] = fruitKey || null;
-            updateHotbarVisuals();
-            renderBagManagement();
+        function moveBackpackToHotbar(seedKey) {
+            if (backpack[seedKey] > 0) {
+                backpack[seedKey]--;
+                addSeedToInventory(seedKey);
+                updateHotbarVisuals();
+                updateUI();
+                renderBackpackManagement();
+            }
+        }
+
+        function moveHotbarToBackpack(slotIdx) {
+            let item = hotbar[slotIdx];
+            if(item.id) {
+                backpack[item.id] += item.qty;
+                item.id = null; item.qty = 0;
+                updateHotbarVisuals();
+                updateUI();
+                renderBackpackManagement();
+            }
         }
 
         function renderHackerPanel() {
             let content = document.getElementById('modal-content');
+            
+            let fRuim = upgrades.find(u => u.id === 'fert_ruim');
+            let fNormal = upgrades.find(u => u.id === 'fert_normal');
+            let fSuper = upgrades.find(u => u.id === 'fert_super');
+
             content.innerHTML = `
-                <div class="adm-field"><label>Moedas Virtuais desejadas:</label><input type="number" id="h-coins" value="${gameState.coins}"></div>
-                <div class="adm-field"><label>Injetar Fruta:</label>
-                <select id="h-type">${Object.keys(fruitData).map(k=>`<option value="${k}">${fruitData[k].name}</option>`).join('')}</select>
-                <input type="number" id="h-qty" value="50"></div>
-                <div class="adm-field"><label>Limite Max de Lotes de Plantação:</label><input type="number" id="h-plots" value="${gameState.maxPlots}"></div>
-                <button class="buy-btn" style="background:#00ff00; color:black;" onclick="executeHackerCheats()">Sobregravar Sistema</button>
+                <div style="border-bottom: 2px solid #00ff00; padding-bottom:5px; margin-bottom:10px; color:#00ff00; font-weight:bold;">⚙️ ATRIBUTOS GERAIS</div>
+                <div class="adm-field"><label>Moedas do Player:</label><input type="number" id="h-coins" value="${gameState.coins}"></div>
+                <div class="adm-field"><label>Velocidade do Jogador (Andar):</label><input type="number" id="h-speed" value="${player.speed}" step="1"></div>
+                <div class="adm-field"><label>Limite Max de Lotes:</label><input type="number" id="h-plots" value="${gameState.maxPlots}"></div>
+                <div class="adm-field"><label>Chance Geral de Mutação (Ex: 0.15 = 15%):</label><input type="number" id="h-mutation" value="${gameState.mutationChance}" step="0.05"></div>
+                
+                <div style="border-bottom: 2px solid #00ff00; padding-bottom:5px; margin-top:15px; margin-bottom:10px; color:#00ff00; font-weight:bold;">💩 FERTILIZANTE RUIM</div>
+                <div style="display:flex; gap:10px;">
+                    <div class="adm-field" style="flex:1;"><label>Tempo (seg):</label><input type="number" id="h-ruim-dur" value="${fRuim.duration}"></div>
+                    <div class="adm-field" style="flex:1;"><label>Mod Velocidade:</label><input type="number" id="h-ruim-sp" value="${fRuim.speed}" step="0.1"></div>
+                </div>
+
+                <div style="border-bottom: 2px solid #00ff00; padding-bottom:5px; margin-top:15px; margin-bottom:10px; color:#00ff00; font-weight:bold;">🧪 FERTILIZANTE NORMAL</div>
+                <div style="display:flex; gap:10px;">
+                    <div class="adm-field" style="flex:1;"><label>Tempo (seg):</label><input type="number" id="h-norm-dur" value="${fNormal.duration}"></div>
+                    <div class="adm-field" style="flex:1;"><label>Mod Velocidade:</label><input type="number" id="h-norm-sp" value="${fNormal.speed}" step="0.1"></div>
+                </div>
+
+                <div style="border-bottom: 2px solid #00ff00; padding-bottom:5px; margin-top:15px; margin-bottom:10px; color:#00ff00; font-weight:bold;">⚡ SUPER FERTILIZANTE</div>
+                <div style="display:flex; gap:10px;">
+                    <div class="adm-field" style="flex:1;"><label>Tempo (seg):</label><input type="number" id="h-super-dur" value="${fSuper.duration}"></div>
+                    <div class="adm-field" style="flex:1;"><label>Mod Velocidade:</label><input type="number" id="h-super-sp" value="${fSuper.speed}" step="0.05"></div>
+                </div>
+
+                <div style="border-bottom: 2px solid #00ff00; padding-bottom:5px; margin-top:15px; margin-bottom:10px; color:#00ff00; font-weight:bold;">🌱 SPAWN DE ITENS</div>
+                <div class="adm-field"><label>Injetar Semente Direto na Hotbar:</label>
+                    <select id="h-type">${Object.keys(fruitData).map(k=>`<option value="${k}">${fruitData[k].name}</option>`).join('')}</select>
+                    <input type="number" id="h-qty" value="0" placeholder="Quantidade a adicionar">
+                </div>
+
+                <button class="buy-btn" style="background:#00ff00; color:black; width:100%; margin-top:15px; font-size:16px;" onclick="executeHackerCheats()">Injetar Modificações</button>
             `;
         }
 
         function executeHackerCheats() {
             gameState.coins = parseFloat(document.getElementById('h-coins').value) || gameState.coins;
+            player.speed = parseFloat(document.getElementById('h-speed').value) || player.speed;
+            gameState.maxPlots = parseInt(document.getElementById('h-plots').value) || gameState.maxPlots;
+            gameState.mutationChance = parseFloat(document.getElementById('h-mutation').value) || gameState.mutationChance;
+
+            let fRuim = upgrades.find(u => u.id === 'fert_ruim');
+            let fNormal = upgrades.find(u => u.id === 'fert_normal');
+            let fSuper = upgrades.find(u => u.id === 'fert_super');
+
+            fRuim.duration = parseInt(document.getElementById('h-ruim-dur').value) || fRuim.duration;
+            fRuim.speed = parseFloat(document.getElementById('h-ruim-sp').value) || fRuim.speed;
+
+            fNormal.duration = parseInt(document.getElementById('h-norm-dur').value) || fNormal.duration;
+            fNormal.speed = parseFloat(document.getElementById('h-norm-sp').value) || fNormal.speed;
+
+            fSuper.duration = parseInt(document.getElementById('h-super-dur').value) || fSuper.duration;
+            fSuper.speed = parseFloat(document.getElementById('h-super-sp').value) || fSuper.speed;
+
             let qty = parseInt(document.getElementById('h-qty').value) || 0;
             let type = document.getElementById('h-type').value;
-            inventory[type] += qty;
-            gameState.maxPlots = parseInt(document.getElementById('h-plots').value) || gameState.maxPlots;
+            for(let i=0; i<qty; i++) { addSeedToInventory(type); }
             
-            createPlots(); updateUI(); updateHotbarVisuals(); alert("Mainframe atualizado!"); closeModal();
+            createPlots(); updateUI(); updateHotbarVisuals(); alert("Mainframe Hacker Atualizado com Sucesso!"); closeModal();
         }
 
         function buyItem(type, target, cost) {
             if (gameState.coins >= cost) {
                 if (type === 'seed' && shopStock[target] > 0) {
-                    shopStock[target]--; inventory[target]++; renderTiaoShop('seeds');
+                    shopStock[target]--;
+                    addSeedToInventory(target);
+                    renderTiaoShop('seeds');
                 } else if (type === 'upgrade') {
-                    upgrades[target].action(); renderTiaoShop('upgrades');
+                    let up = upgrades[target];
+                    if(up.type === 'buff') {
+                        if(!activeBuffs[up.buffKey]) activeBuffs[up.buffKey] = 0;
+                        if(up.noStack) { activeBuffs[up.buffKey] = up.duration; } 
+                        else { activeBuffs[up.buffKey] += up.duration; }
+                    } else { up.action(); }
+                    renderTiaoShop('upgrades');
                 } else if (type === 'magic') {
-                    magicItems[target].action(); renderMagoShop();
+                    let mag = magicItems[target];
+                    if(!activeBuffs[mag.buffKey]) activeBuffs[mag.buffKey] = 0;
+                    
+                    // Buffs mágicos acumulam tempo
+                    activeBuffs[mag.buffKey] += mag.duration;
+                    renderMagoShop();
                 }
                 gameState.coins -= cost; updateUI(); updateHotbarVisuals();
             }
@@ -548,7 +674,6 @@
             document.getElementById('player').style.left = player.x + 'px';
             document.getElementById('player').style.top = player.y + 'px';
             
-            // Reposicionamento dinâmico do Mago e Hacker com base na tela do usuário
             document.getElementById('npc-mago').style.left = (window.innerWidth - 100) + 'px';
             document.getElementById('npc-hacker').style.top = (window.innerHeight - 140) + 'px';
 
