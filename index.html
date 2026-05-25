@@ -30,7 +30,7 @@
         /* Cenário / Tela */
         #game-canvas { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; background: #346c24; background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 32px 32px; z-index: 1; }
         
-        /* Personagem visível forçado */
+        /* Personagem visível */
         #player { position: absolute; width: 48px; height: 48px; background-color: #ffcc00; border: 3px solid #1a1510; border-radius: 50%; display: flex !important; align-items: center; justify-content: center; font-size: 28px; z-index: 50 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.4); text-align: center; line-height: 48px; }
         
         .npc { position: absolute; width: 50px; height: 50px; font-size: 28px; z-index: 10; background: #2b4d75; border: 3px solid #1a1510; border-radius: 4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
@@ -44,7 +44,7 @@
         .plot { width: 84px; height: 84px; background: #50341c; border: 4px solid #2d1d0f; border-radius: 2px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6); }
         .plot:hover { border-color: #7bb842; }
         
-        /* Efeitos Visuais */
+        /* Efeitos Visuais de Mutação */
         .crop { font-size: 36px; animation: bobbing 1s infinite alternate ease-in-out; position: relative; display: flex; flex-direction: column; align-items: center; z-index: 6; }
         .crop.growing { filter: grayscale(70%) brightness(60%) scale(0.6); animation: none; }
         
@@ -139,17 +139,14 @@
         let gameState = { coins: 150, maxPlots: 6, speedMultiplier: 1.0, weightBonus: 0, mutationChance: 0.15, hackerUnlocked: false, activeHotbarSlot: 0 };
         let currentModalNPC = null;
         
-        // Inventário reserva da mochila
-        let backpack = {
-            maca_semente: 5, banana_semente: 3, laranja_semente: 0, morango_semente: 0, melancia_semente: 0, abacaxi_semente: 0, 
-            maca_fruta: 0, banana_fruta: 0, laranja_fruta: 0, morango_fruta: 0, melancia_fruta: 0, abacaxi_fruta: 0
-        };
+        // Inventário reserva
+        let backpack = {};
 
-        // Hotbar estruturada para aceitar sementes E também frutas colhidas
+        // Hotbar inicial
         let hotbar = [
             { id: 'maca_semente', qty: 5, type: 'semente', data: null }, 
             { id: 'banana_semente', qty: 3, type: 'semente', data: null }, 
-            { id: null, qty: 0, type: '', data: null }, 
+            { id: 'cenoura_semente', qty: 2, type: 'semente', data: null }, 
             { id: null, qty: 0, type: '', data: null },
             { id: null, qty: 0, type: '', data: null }, 
             { id: null, qty: 0, type: '', data: null }, 
@@ -164,14 +161,27 @@
         let plots = [];
         let activeBuffs = {}; 
 
+        // LISTA DE FRUTAS COMPLETA ENCONTRADA E RESTAURADA!
         const fruitData = {
             maca: { name: "Maçã", icon: "🍎", basePrice: 15, weightMin: 0.3, time: 4, chance: 100 },
             banana: { name: "Banana", icon: "🍌", basePrice: 20, weightMin: 0.2, time: 6, chance: 100 },
+            cenoura: { name: "Cenoura", icon: "🥕", basePrice: 22, weightMin: 0.15, time: 5, chance: 95 },
             laranja: { name: "Laranja", icon: "🍊", basePrice: 25, weightMin: 0.4, time: 8, chance: 95 },
+            tomate: { name: "Tomate", icon: "🍅", basePrice: 30, weightMin: 0.25, time: 10, chance: 90 },
             morango: { name: "Morango", icon: "🍓", basePrice: 35, weightMin: 0.05, time: 12, chance: 85 },
+            milho: { name: "Milho", icon: "🌽", basePrice: 40, weightMin: 0.35, time: 14, chance: 80 },
             melancia: { name: "Melancia", icon: "🍉", basePrice: 50, weightMin: 2.0, time: 16, chance: 75 },
-            abacaxi: { name: "Abacaxi", icon: "🍍", basePrice: 65, weightMin: 1.2, time: 20, chance: 65 }
+            abobora: { name: "Abóbora", icon: "🎃", basePrice: 55, weightMin: 3.5, time: 18, chance: 70 },
+            abacaxi: { name: "Abacaxi", icon: "🍍", basePrice: 65, weightMin: 1.2, time: 20, chance: 65 },
+            cacau: { name: "Cacau", icon: "🍫", basePrice: 80, weightMin: 0.5, time: 25, chance: 50 },
+            estrela: { name: "Fruta Estrela", icon: "⭐", basePrice: 150, weightMin: 0.3, time: 35, chance: 30 }
         };
+
+        // Inicializa dinamicamente as chaves da mochila com base na lista de frutas
+        Object.keys(fruitData).forEach(k => {
+            backpack[`${k}_semente`] = k === 'maca' ? 5 : (k === 'banana' ? 3 : 0);
+            backpack[`${k}_fruta`] = 0;
+        });
 
         const upgrades = [
             { id: 'expand', name: 'Expandir Lote (+1 Terreno)', cost: 150, type: 'perm', action: () => { gameState.maxPlots++; createPlots(); } },
@@ -181,7 +191,7 @@
             { id: 'fert_super', name: '⚡ Hiper-Nutriente (+2.0x Vel)', cost: 120, type: 'buff', duration: 15, speed: 0.2, buffKey: 'Super', noStack: true }
         ];
 
-        // VALOR E CHANCE AJUSTADOS: Voltou para os preços originais (130~500), mas agora dão 40% de chance (0.40) em vez de 100%
+        // Valores anteriores recuperados e balanceados com a chance de 40% (0.40)
         const magicItems = [
             { id: 'potion_cosmic', name: 'Essência de Buraco Negro (Alta Mutação)', cost: 130, duration: 45, type: 'magic_buff', buffKey: 'Cosmic', label: '🌌 Altar Cósmico' },
             { id: 'potion_lightning', name: 'Encantamento Tempestuoso (40% Elétrico)', cost: 180, duration: 30, type: 'magic_buff', buffKey: 'ForceLightning', label: '⚡ Fúria Elétrica' },
@@ -195,7 +205,6 @@
             updateUI();
             updateHotbarVisuals();
 
-            // Loop do estoque da Loja
             setInterval(() => {
                 shopTimer--;
                 if (shopTimer <= 0) { refreshShopSeeds(); shopTimer = 180; }
@@ -203,7 +212,6 @@
                 document.getElementById('shop-timer').innerText = `Loja reestoca em: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }, 1000);
 
-            // Loop de crescimento das plantas
             setInterval(() => {
                 let currentSpeedMod = 1.0;
                 let activeBuffDescriptions = [];
@@ -255,7 +263,6 @@
                 });
             }, 200);
 
-            // Controles
             window.addEventListener('keydown', e => {
                 if (e.code === 'Space') {
                     e.preventDefault();
@@ -297,9 +304,8 @@
             backpack[itemKey]++;
         }
 
-        // LÓGICA DE EVENTO AJUSTADA PARA 40% NAS POÇÕES ATIVAS
         function generateMutation() {
-            // Se um buff de poção estiver ativo, há 40% de chance de forçar aquela mutação específica
+            // Chance de 40% ativa nas poções correspondentes do Altar Místico
             if (activeBuffs['ForceDivine'] && activeBuffs['ForceDivine'] > 0 && Math.random() < 0.40) return 'divine';
             if (activeBuffs['ForceFrozen'] && activeBuffs['ForceFrozen'] > 0 && Math.random() < 0.40) return 'frozen';
             if (activeBuffs['ForceLightning'] && activeBuffs['ForceLightning'] > 0 && Math.random() < 0.40) return 'lightning';
@@ -594,8 +600,9 @@
                 let qty = backpack[key];
                 if(qty > 0) {
                     hasItems = true;
-                    let displayLabel = key.endsWith('_semente') ? "Sementes de " + fruitData[key.split('_')[0]].name : "Fruta Colhida: " + fruitData[key.split('_')[0]].name;
-                    let displayIcon = fruitData[key.split('_')[0]].icon;
+                    let base = key.split('_')[0];
+                    let displayLabel = key.endsWith('_semente') ? "Sementes de " + fruitData[base].name : "Fruta Colhida: " + fruitData[base].name;
+                    let displayIcon = fruitData[base].icon;
                     content.innerHTML += `
                         <div class="shop-item">
                             <div class="item-info"><span class="item-icon">${displayIcon}</span>
