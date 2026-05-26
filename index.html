@@ -3,344 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG - Masmorra & Hacker Panel</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    <title>Fazendinha do Agrinho - Pixel RPG Edition</title>
     <style>
-        body { 
-            margin: 0; 
-            padding: 0; 
-            background: #1a1a1a; 
-            font-family: sans-serif; 
-            overflow: hidden; 
-        }
-        #game-container { 
-            width: 800px; 
-            height: 600px; 
-            margin: 20px auto; 
-            position: relative; 
-        }
+        * { box-sizing: border-box; user-select: none; }
+        body { margin: 0; padding: 0; background-color: #244414; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
         
-        /* Estilos do Painel Hacker */
-        #hacker-panel {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.85);
-            color: #00ff00;
-            border: 2px solid #00ff00;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: 'Courier New', Courier, monospace;
-            z-index: 10;
-            display: none;
-            width: 280px;
-        }
-        #hacker-panel h3 { 
-            margin-top: 0; 
-            text-align: center; 
-            border-bottom: 1px solid #00ff00; 
-            padding-bottom: 5px; 
-        }
-        .hacker-group { 
-            margin-bottom: 10px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
-        .hacker-group label { 
-            font-size: 12px; 
-        }
-        .hacker-group input, .hacker-group select { 
-            background: #000; 
-            color: #00ff00; 
-            border: 1px solid #00ff00; 
-            width: 100px; 
-            padding: 2px; 
-        }
-        #btn-toggle-hacker { 
-            position: absolute; 
-            top: 10px; 
-            right: 10px; 
-            z-index: 11; 
-            background: #333; 
-            color: #fff; 
-            border: 1px solid #fff; 
-            padding: 5px 10px; 
-            cursor: pointer; 
-        }
-        #btn-apply-hack {
-            width: 100%; 
-            background: #00ff00; 
-            color: #000; 
-            border: none; 
-            padding: 5px; 
-            cursor: pointer; 
-            font-weight: bold;
-        }
+        /* UI Superior */
+        #ui-top { position: absolute; top: 15px; left: 15px; background: #1a1510; color: #f4ecd8; padding: 15px; border-radius: 4px; border: 4px solid #b8860b; z-index: 100; min-width: 280px; box-shadow: 0 6px 0px #0c0a07; }
+        #ui-top h2 { margin: 0 0 8px 0; color: #ffcc00; font-size: 18px; text-align: center; border-bottom: 2px dashed #443322; padding-bottom: 5px; text-transform: uppercase; }
+        #ui-top p { margin: 6px 0; font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; }
+        #shop-timer { color: #ff4444; font-size: 12px; font-weight: bold; margin-top: 8px; text-align: center; background: #2a1111; padding: 4px; border: 1px solid #551111; }
+        #active-buffs { margin-top: 8px; font-size: 11px; color: #5cc8ff; line-height: 1.4; }
+        
+        /* Botão de Mochila */
+        .btn-mochila { width: 100%; margin-top: 10px; background: #3a5fcd; color: white; border: 2px solid #284291; border-bottom-width: 5px; padding: 6px; font-weight: bold; cursor: pointer; font-size: 12px; font-family: inherit; text-transform: uppercase; }
+        .btn-mochila:active { border-bottom-width: 2px; margin-top: 13px; margin-bottom: -3px; }
+
+        /* Hotbar Pixel Art */
+        #hotbar-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; background: #221a15; padding: 8px; border: 4px solid #553311; border-radius: 2px; z-index: 100; box-shadow: 0 6px 0 #0c0a07; }
+        .hotbar-slot { width: 55px; height: 55px; background: #3d2d22; border: 3px solid #1f140e; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: all 0.1s; }
+        .hotbar-slot.selected { border-color: #ffd700; background: #5a4535; transform: scale(1.05); }
+        .hotbar-slot .slot-num { position: absolute; top: 1px; left: 3px; font-size: 10px; color: #887766; }
+        .hotbar-slot .slot-icon { font-size: 24px; margin-top: 2px; }
+        .hotbar-slot .slot-qty { position: absolute; bottom: 1px; right: 3px; font-size: 11px; color: #ffd700; font-weight: bold; }
+
+        /* Cenário / Tela */
+        #game-canvas { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; background: #346c24; background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 32px 32px; z-index: 1; }
+        
+        /* Personagem */
+        #player { position: absolute; width: 48px; height: 48px; background-color: #ffcc00; border: 3px solid #1a1510; border-radius: 50%; display: flex !important; align-items: center; justify-content: center; font-size: 28px; z-index: 50 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.4); text-align: center; line-height: 48px; }
+        
+        .npc { position: absolute; width: 50px; height: 50px; font-size: 28px; z-index: 10; background: #2b4d75; border: 3px solid #1a1510; border-radius: 4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+        #npc-tiao { background: #3a6fa5; }
+        #npc-mago { background: #6a329b; }
+        #npc-chico { background: #a0522d; }
+        #npc-hacker { background: #222222; border-color: #33ff33; }
+        .npc-label { position: absolute; top: -28px; background: #1a1510; color: #f4ecd8; padding: 2px 6px; border: 2px solid #b8860b; font-size: 10px; font-weight: bold; white-space: nowrap; font-family: inherit; }
+
+        /* Grade de Lotes Protegida */
+        #farm-zones { position: absolute; top: 200px; left: 340px; display: flex; flex-wrap: wrap; gap: 10px; max-width: calc(100vw - 380px); max-height: calc(100vh - 340px); overflow: hidden; z-index: 5; padding: 5px; }
+        .plot { width: 80px; height: 80px; background: #50341c; border: 4px solid #2d1d0f; border-radius: 2px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 4px 8px rgba(0,0,0,0.6); }
+        .plot:hover { border-color: #7bb842; }
+        
+        /* Efeitos Visuais de Mutação */
+        .crop { font-size: 34px; animation: bobbing 1s infinite alternate ease-in-out; position: relative; display: flex; flex-direction: column; align-items: center; z-index: 6; }
+        .crop.growing { filter: grayscale(70%) brightness(60%) scale(0.6); animation: none; }
+        
+        .crop.golden { filter: drop-shadow(0px 0px 8px #ffd700) brightness(1.2); }
+        .crop.lightning { filter: drop-shadow(0px 0px 10px #33ccff) brightness(1.3); animation: glitch 0.2s infinite alternate; }
+        .crop.frozen { filter: drop-shadow(0px 0px 8px #aaddff) saturate(0.6) brightness(1.1); }
+        .crop.infernal { filter: drop-shadow(0px 0px 12px #ff3300) brightness(1.2); animation: glitch 0.4s infinite alternate; }
+        .crop.toxic { filter: drop-shadow(0px 0px 6px #22ff22) grayscale(20%); }
+        .crop.divine { filter: drop-shadow(0px 0px 16px #ff00ff) drop-shadow(0px 0px 4px #ffd700); }
+        .crop.cosmic { filter: drop-shadow(0px 0px 14px #9400d3) drop-shadow(0px 0px 6px #00ffff); animation: spin 4s infinite linear; }
+
+        @keyframes bobbing { 0% { transform: translateY(0px); } 100% { transform: translateY(-4px); } }
+        @keyframes glitch { 0% { transform: skewX(-2deg) scale(0.97); } 100% { transform: skewX(2deg) scale(1.03); } }
+        @keyframes spin { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.08); } 100% { transform: rotate(360deg) scale(1); } }
+
+        .timer-bar { position: absolute; bottom: 6px; left: 6px; width: calc(100% - 12px); height: 8px; background: #1a1510; border: 1px solid #443322; padding: 1px; }
+        .timer-fill { height: 100%; width: 0%; background: #4caf50; }
+
+        /* Modais */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #221a15; border: 4px solid #b8860b; padding: 20px; z-index: 200; width: 90%; max-width: 540px; box-shadow: 0 12px 0px #0c0a07; max-height: 85vh; overflow-y: auto; color: #f4ecd8; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #443322; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-header h3 { margin: 0; color: #ffd700; text-transform: uppercase; font-size: 16px; }
+        .close-btn { background: #a62b2b; color: white; border: 2px solid #551111; border-bottom-width: 4px; padding: 4px 10px; cursor: pointer; font-weight: bold; font-family: inherit; }
+        
+        .shop-tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab-btn { flex: 1; padding: 8px; background: #3d2d22; border: 2px solid #1f140e; color: #c4b5a3; cursor: pointer; font-weight: bold; font-size: 11px; font-family: inherit; text-transform: uppercase; }
+        .tab-btn.active { background: #b8860b; color: #1a1510; border-color: #ffd700; }
+
+        .shop-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        .shop-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 2px solid #3d2d22; background: #2d2017; }
+        .item-info { display: flex; align-items: center; gap: 12px; }
+        .item-icon { font-size: 28px; }
+        .item-details p { margin: 2px 0; font-size: 11px; color: #bcaaa4; }
+        .buy-btn { background: #38761d; color: white; border: 2px solid #1b3d0f; border-bottom-width: 4px; padding: 6px 12px; cursor: pointer; font-weight: bold; font-family: inherit; }
+        .buy-btn:disabled { background: #444; border-color: #222; cursor: not-allowed; color: #777; }
+        
+        .adm-field { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+        .adm-field label { font-weight: bold; color: #33ff33; font-size: 11px; text-transform: uppercase; }
+        .adm-field input, .adm-field select { padding: 6px; background: #111; border: 2px solid #33ff33; color: #00ff00; font-family: inherit; }
     </style>
 </head>
 <body>
 
-<button id="btn-toggle-hacker">DevPanel (Hacker)</button>
-
-<div id="game-container">
-    <div id="hacker-panel">
-        <h3>HACKER PANEL v1.0</h3>
-        <div class="hacker-group">
-            <label>Dinheiro:</label>
-            <input type="number" id="hack-money" value="100">
-        </div>
-        <div class="hacker-group">
-            <label>Qtd Sementes Hotbar:</label>
-            <input type="number" id="hack-seeds-qty" value="5">
-        </div>
-        <div class="hacker-group">
-            <label>Tipo de Semente:</label>
-            <select id="hack-seed-type">
-                <option value="Comum">Comum (Nível 1)</option>
-                <option value="Rara">Rara (Nível 2)</option>
-                <option value="Épica">Épica (Nível 3)</option>
-                <option value="Divina">Divina (Nível 4)</option>
-            </select>
-        </div>
-        <div class="hacker-group">
-            <label>Dano da Arma:</label>
-            <input type="number" id="hack-damage" value="10">
-        </div>
-        <button id="btn-apply-hack">APLICAR TRAPAÇAS</button>
+    <div id="ui-top">
+        <h2>Fazenda Agrinho</h2>
+        <p><span> Moedas:</span> <span id="coin-count">150</span></p>
+        <p><span> Item na Mão:</span> <span id="selected-seed-text">Nenhum</span></p>
+        <button class="btn-mochila" onclick="openBackpackModal()"> Mochila [Space]</button>
+        <div id="active-buffs"></div>
+        <div id="shop-timer">Loja reestoca em: 03:00</div>
     </div>
-</div>
 
-<script>
-// --- CONFIGURAÇÃO GLOBAL DO ESTADO DO JOGADOR ---
-const playerState = {
-    money: 100,
-    hotbar: { seedType: 'Comum', seedLevel: 1, quantity: 5 },
-    currentWeapon: 'Espada',
-    weaponDamage: 10,
-    weaponLevel: 1,
-    inventoryOres: 0,
-    dungeonLevel: 1
-};
+    <div id="hotbar-container">
+        <div class="hotbar-slot selected" id="slot-0" onclick="selectSlot(0)"><span class="slot-num">1</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-1" onclick="selectSlot(1)"><span class="slot-num">2</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-2" onclick="selectSlot(2)"><span class="slot-num">3</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-3" onclick="selectSlot(3)"><span class="slot-num">4</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-4" onclick="selectSlot(4)"><span class="slot-num">5</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-5" onclick="selectSlot(5)"><span class="slot-num">6</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-6" onclick="selectSlot(6)"><span class="slot-num">7</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot" id="slot-7" onclick="selectSlot(7)"><span class="slot-num">8</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+    </div>
 
-// --- BALANCEAMENTO DAS ARMAS (PRÓS E CONTRAS) ---
-const weaponStats = {
-    'Espada':  { damageBase: 10, range: 50,  speed: 300, pros: 'Equilibrada', cons: 'Sem bônus único' },
-    'Arco':    { damageBase: 7,  range: 200, speed: 500, pros: 'Longo Alcance', cons: 'Dano menor' },
-    'Picareta':{ damageBase: 8,  range: 40,  speed: 400, pros: 'Minera Rápido', cons: 'Curto alcance' },
-    'Foice':   { damageBase: 12, range: 60,  speed: 600, pros: 'Grande Área', cons: 'Ataque lento' },
-    'Lança':   { damageBase: 11, range: 110, speed: 450, pros: 'Alto Alcance', cons: 'Ataque linear lento' }
-};
-
-// --- CENA DO MUNDO PRINCIPAL ---
-class MainScene extends Phaser.Scene {
-    constructor() { super({ key: 'MainScene' }); }
-
-    preload() {}
-
-    create() {
-        this.add.text(20, 20, "MUNDO PRINCIPAL (Fazenda)", { fontSize: '24px', fill: '#fff' });
+    <div id="game-canvas">
+        <div id="player" style="top: 300px; left: 250px;">🧑‍🌾</div>
         
-        this.statusText = this.add.text(20, 60, '', { fontSize: '14px', fill: '#00ff00' });
-        this.updateStatusDisplay();
-
-        // Loja Normal Visível
-        const normalShop = this.add.rectangle(150, 300, 100, 80, 0x3498db).setInteractive();
-        this.add.text(115, 290, "Loja Geral\n(Visível)", { fontSize: '12px', fill: '#fff' });
-        normalShop.on('pointerdown', () => alert("Abriu Loja Geral: Itens básicos."));
-
-        // LOJA DE SEMENTES ESCONDIDA (Canto superior direito, camuflada)
-        const fakeObstacle = this.add.rectangle(700, 100, 80, 80, 0x27ae60);
-        const hiddenShop = this.add.rectangle(700, 100, 40, 40, 0xe74c3c).setInteractive().setAlpha(0.1);
-        this.add.text(660, 150, "(Árvore Densa)", { fontSize: '11px', fill: '#7f8c8d' });
+        <div id="npc-tiao" class="character npc" style="top: 80px; left: 140px;">🏪<span class="npc-label">Mercado Tião [E]</span></div>
+        <div id="npc-mago" class="character npc" style="top: 80px; left: 800px;">🧙‍♂️<span class="npc-label">Altar Místico [E]</span></div>
+        <div id="npc-chico" class="character npc" style="top: 480px; left: 800px;">👴<span class="npc-label">Seu Chico Comprador [E]</span></div>
+        <div id="npc-hacker" class="character npc" style="top: 480px; left: 140px;">💻<span class="npc-label">Hacker Terminal [E]</span></div>
         
-        hiddenShop.on('pointerdown', () => {
-            alert("✨ Você encontrou a Loja Secreta de Sementes! ✨\nAqui há raridades escondidas!");
+        <div id="farm-zones"></div>
+    </div>
+
+    <div id="game-modal" class="modal">
+        <div class="modal-header">
+            <h3 id="modal-title">Menu</h3>
+            <button class="close-btn" onclick="closeModal()">X</button>
+        </div>
+        <div class="shop-tabs" id="modal-tabs"></div>
+        <div id="modal-content" class="shop-grid"></div>
+    </div>
+
+    <script>
+        let player = { x: 250, y: 300, speed: 6 };
+        let gameState = { coins: 150, maxPlots: 6, speedMultiplier: 1.0, weightBonus: 0, mutationChance: 0.06, hackerUnlocked: false, activeHotbarSlot: 0 };
+        let currentModalNPC = null;
+        
+        let backpack = {};
+        let hotbar = [
+            { id: 'maca_semente', qty: 5, type: 'semente', data: null },
+            { id: 'banana_semente', qty: 3, type: 'semente', data: null },
+            { id: 'cenoura_semente', qty: 2, type: 'semente', data: null },
+            { id: null, qty: 0, type: '', data: null },
+            { id: null, qty: 0, type: '', data: null },
+            { id: null, qty: 0, type: '', data: null },
+            { id: null, qty: 0, type: '', data: null },
+            { id: null, qty: 0, type: '', data: null }
+        ];
+
+        let keysPressed = {};
+        let shopStock = {};
+        let currentStoreSeeds = [];
+        let shopTimer = 180;
+        let plots = [];
+        let activeBuffs = {};
+
+        const fruitData = {
+            maca: { name: "Maçã", icon: "🍎", basePrice: 15, weightMin: 0.3, time: 4, chance: 100 },
+            banana: { name: "Banana", icon: "🍌", basePrice: 20, weightMin: 0.2, time: 6, chance: 100 },
+            cenoura: { name: "Cenoura", icon: "🥕", basePrice: 22, weightMin: 0.15, time: 5, chance: 95 },
+            laranja: { name: "Laranja", icon: "🍊", basePrice: 25, weightMin: 0.4, time: 8, chance: 95 },
+            tomate: { name: "Tomate", icon: "🍅", basePrice: 30, weightMin: 0.25, time: 10, chance: 90 },
+            morango: { name: "Morango", icon: "🍓", basePrice: 35, weightMin: 0.05, time: 12, chance: 85 },
+            milho: { name: "Milho", icon: "🌽", basePrice: 40, weightMin: 0.35, time: 14, chance: 80 },
+            melancia: { name: "Melancia", icon: "🍉", basePrice: 50, weightMin: 2.0, time: 16, chance: 75 },
+            abobora: { name: "Abóbora", icon: "🎃", basePrice: 55, weightMin: 3.5, time: 18, chance: 70 },
+            abacaxi: { name: "Abacaxi", icon: "🍍", basePrice: 65, weightMin: 1.2, time: 20, chance: 65 },
+            cacau: { name: "Cacau", icon: "🍫", basePrice: 80, weightMin: 0.5, time: 25, chance: 50 },
+            estrela: { name: "Fruta Estrela", icon: "⭐", basePrice: 150, weightMin: 0.3, time: 35, chance: 30 }
+        };
+
+        Object.keys(fruitData).forEach(k => {
+            backpack[`${k}_semente`] = k === 'maca' ? 5 : (k === 'banana' ? 3 : 0);
+            backpack[`${k}_fruta`] = 0;
         });
 
-        // ENTRADA DA MASMORRA (Canto inferior direito)
-        const dungeonEntrance = this.add.rectangle(720, 520, 100, 100, 0x2c3e50).setInteractive();
-        dungeonEntrance.setStrokeStyle(4, 0x95a5a6);
-        this.add.text(685, 500, "MASMORRA\n(Clique)", { fontSize: '14px', fill: '#fff', align: 'center' });
+        const upgrades = [
+            { id: 'expand', name: 'Expandir Lote (+1 Terreno)', cost: 150, type: 'perm', action: () => { if(gameState.maxPlots < 15){ gameState.maxPlots++; createPlots(); } else { alert("Limite de segurança de lotes atingido!"); } } },
+            { id: 'vitamin', name: 'Vitaminas Orgânicas (+600g peso)', cost: 220, type: 'perm', action: () => { gameState.weightBonus += 0.6; } },
+            { id: 'fert_ruim', name: ' Adubo Estrume (+0.2x Vel)', cost: 15, type: 'buff', duration: 60, speed: 0.8, buffKey: 'Ruim', noStack: false },
+            { id: 'fert_normal', name: ' Fertilizante Comum (+0.5x Vel)', cost: 45, type: 'buff', duration: 120, speed: 0.5, buffKey: 'Normal', noStack: false },
+            { id: 'fert_super', name: ' Hiper-Nutriente (+2.0x Vel)', cost: 120, type: 'buff', duration: 15, speed: 0.2, buffKey: 'Super', noStack: true }
+        ];
 
-        dungeonEntrance.on('pointerdown', () => {
-            this.scene.start('DungeonScene');
-        });
-    }
+        const magicItems = [
+            { id: 'potion_cosmic', name: 'Essência de Buraco Negro (Alta Mutação)', cost: 130, duration: 45, type: 'magic_buff', buffKey: 'Cosmic', label: ' Altar Cósmico' },
+            { id: 'potion_lightning', name: 'Encantamento Tempestuoso (40% Elétrico)', cost: 180, duration: 30, type: 'magic_buff', buffKey: 'ForceLightning', label: ' Fúria Elétrica' },
+            { id: 'potion_frozen', name: 'Elixir do Inverno Crio (40% Congelado)', cost: 250, duration: 30, type: 'magic_buff', buffKey: 'ForceFrozen', label: ' Congelamento' },
+            { id: 'potion_divine', name: 'Bênção Suprema Divina (40% Divino)', cost: 500, duration: 20, type: 'magic_buff', buffKey: 'ForceDivine', label: ' Aura Divina' }
+        ];
 
-    updateStatusDisplay() {
-        this.statusText.setText(
-            `Dinheiro: $${playerState.money}\n` +
-            `Hotbar: ${playerState.hotbar.quantity}x Semente ${playerState.hotbar.seedType} (Nível ${playerState.hotbar.seedLevel})\n` +
-            `Arma Atual: ${playerState.currentWeapon} (Lvl ${playerState.weaponLevel}) - Dano: ${playerState.weaponDamage}\n` +
-            `Minérios: ${playerState.inventoryOres}`
-        );
-    }
-}
+        function init() {
+            createPlots();
+            refreshShopSeeds();
+            updateUI();
+            updateHotbarVisuals();
 
-// --- CENA DA MASMORRA ---
-class DungeonScene extends Phaser.Scene {
-    constructor() { super({ key: 'DungeonScene' }); }
+            setInterval(() => {
+                shopTimer--;
+                if (shopTimer <= 0) { refreshShopSeeds(); shopTimer = 180; }
+                let mins = Math.floor(shopTimer / 60), secs = shopTimer % 60;
+                document.getElementById('shop-timer').innerText = `Loja reestoca em: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
 
-    create() {
-        this.cameras.main.setBackgroundColor('#111');
-        this.titleText = this.add.text(20, 20, `MASMORRA - NÍVEL ${playerState.dungeonLevel}`, { fontSize: '24px', fill: '#e74c3c' });
-        
-        // Sistema de Boss a cada 5 níveis
-        this.isBossLevel = playerState.dungeonLevel % 5 === 0;
-        
-        if (this.isBossLevel) {
-            this.titleText.setText(`👹 SALA DO BOSS (Nível ${playerState.dungeonLevel})`);
-            this.spawnBoss();
-        } else {
-            this.spawnNormalRoom();
+            setInterval(() => {
+                let currentSpeedMod = 1.0;
+                let activeBuffDescriptions = [];
+
+                let speedSuper = upgrades.find(u => u.id === 'fert_super').speed;
+                let speedNormal = upgrades.find(u => u.id === 'fert_normal').speed;
+                let speedRuim = upgrades.find(u => u.id === 'fert_ruim').speed;
+
+                if (activeBuffs['Super'] && activeBuffs['Super'] > 0) {
+                    activeBuffs['Super']--; currentSpeedMod = speedSuper;
+                    activeBuffDescriptions.push(` Hiper-Nutriente (${activeBuffs['Super']}s)`);
+                } else if (activeBuffs['Normal'] && activeBuffs['Normal'] > 0) {
+                    activeBuffs['Normal']--; currentSpeedMod = speedNormal;
+                    activeBuffDescriptions.push(` Fertilizante Comum (${activeBuffs['Normal']}s)`);
+                } else if (activeBuffs['Ruim'] && activeBuffs['Ruim'] > 0) {
+                    activeBuffs['Ruim']--; currentSpeedMod = speedRuim;
+                    activeBuffDescriptions.push(` Adubo Estrume (${activeBuffs['Ruim']}s)`);
+                }
+                
+                magicItems.forEach(m => {
+                    if (activeBuffs[m.buffKey] && activeBuffs[m.buffKey] > 0) {
+                        activeBuffs[m.buffKey]--;
+                        activeBuffDescriptions.push(`${m.label} (${activeBuffs[m.buffKey]}s)`);
+                    }
+                });
+
+                gameState.speedMultiplier = currentSpeedMod;
+                document.getElementById('active-buffs').innerHTML = activeBuffDescriptions.length ? " <b>Efeitos:</b><br>" + activeBuffDescriptions.join("<br>") : "";
+
+                plots.forEach(plot => {
+                    if (plot.status === 'growing') {
+                        plot.timer -= 0.2;
+                        let totalTime = fruitData[plot.fruit].time * gameState.speedMultiplier;
+                        let progress = Math.min(((totalTime - plot.timer) / totalTime) * 100, 100);
+                        let fillBar = plot.element.querySelector('.timer-fill');
+                        if (fillBar) fillBar.style.width = `${progress}%`;
+
+                        if (plot.timer <= 0) {
+                            plot.status = 'ready';
+                            let cropDiv = plot.element.querySelector('.crop');
+                            if (cropDiv) {
+                                cropDiv.classList.remove('growing');
+                                if (plot.mutationType) cropDiv.classList.add(plot.mutationType);
+                            }
+                            let timerBar = plot.element.querySelector('.timer-bar');
+                            if (timerBar) timerBar.remove();
+                        }
+                    }
+                });
+            }, 200);
+
+            window.addEventListener('keydown', e => {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    if (currentModalNPC === 'mochila') closeModal();
+                    else openBackpackModal();
+                    return;
+                }
+                keysPressed[e.key.toLowerCase()] = true;
+                if (['1','2','3','4','5','6','7','8'].includes(e.key)) selectSlot(parseInt(e.key) - 1);
+                if (e.key.toLowerCase() === 'e') handleNPCDetection();
+            });
+            window.addEventListener('keyup', e => { keysPressed[e.key.toLowerCase()] = false; });
+
+            gameLoop();
         }
 
-        // Botão de retornar
-        const leaveBtn = this.add.rectangle(100, 550, 140, 40, 0x7f8c8d).setInteractive();
-        this.add.text(50, 540, "Sair da Masmorra", { fontSize: '14px', fill: '#fff' });
-        leaveBtn.on('pointerdown', () => this.scene.start('MainScene'));
-    }
+        function gameLoop() {
+            let moved = false;
+            if (keysPressed['w'] || keysPressed['arrowup']) { player.y -= player.speed; moved = true; }
+            if (keysPressed['s'] || keysPressed['arrowdown']) { player.y += player.speed; moved = true; }
+            if (keysPressed['a'] || keysPressed['arrowleft']) { player.x -= player.speed; moved = true; }
+            if (keysPressed['d'] || keysPressed['arrowright']) { player.x += player.speed; moved = true; }
 
-    spawnNormalRoom() {
-        this.add.text(20, 70, "Minere recursos e derrote os monstros para descer!", { fontSize: '14px', fill: '#fff' });
-
-        // Minério coletável para upgrades
-        const ore = this.add.circle(300, 300, 30, 0x9b59b6).setInteractive();
-        const oreText = this.add.text(265, 290, "MINÉRIO", { fontSize: '12px', fill: '#fff' });
-        
-        ore.on('pointerdown', () => {
-            playerState.inventoryOres += 2;
-            alert(`Você coletou 2 minérios usando seu(sua) ${playerState.currentWeapon}!`);
-            ore.destroy();
-            oreText.destroy();
-        });
-
-        // Avançar nível
-        const killMonstersBtn = this.add.rectangle(400, 450, 200, 50, 0x27ae60).setInteractive();
-        this.add.text(320, 440, "Derrotar Monstros", { fontSize: '14px', fill: '#fff' });
-        killMonstersBtn.on('pointerdown', () => {
-            playerState.dungeonLevel++;
-            this.scene.restart();
-        });
-
-        // Sistema de Forja
-        const forgeBtn = this.add.rectangle(650, 300, 150, 60, 0xd35400).setInteractive();
-        this.add.text(590, 285, "FORJAR ARMA\n(-5 Minérios)", { fontSize: '11px', fill: '#fff', align: 'center' });
-        
-        forgeBtn.on('pointerdown', () => {
-            if (playerState.inventoryOres >= 5) {
-                playerState.inventoryOres -= 5;
-                playerState.weaponLevel++;
-                playerState.weaponDamage += 5;
-                alert(`Arma aprimorada! Nível Atual: ${playerState.weaponLevel} | Dano: ${playerState.weaponDamage}`);
-            } else {
-                alert("Você precisa de pelo menos 5 minérios!");
+            if (moved) {
+                let pDiv = document.getElementById('player');
+                pDiv.style.left = player.x + 'px';
+                pDiv.style.top = player.y + 'px';
             }
-        });
-
-        this.showWeaponSelector();
-    }
-
-    spawnBoss() {
-        const boss = this.add.rectangle(400, 250, 120, 120, 0xc0392b).setInteractive();
-        this.add.text(350, 160, "💥 CHEFÃO DA SALA 💥", { fontSize: '20px', fill: '#ff3333' });
-        
-        let bossHP = 50 * playerState.dungeonLevel;
-        const hpText = this.add.text(360, 330, `HP: ${bossHP}`, { fontSize: '16px', fill: '#fff' });
-
-        boss.on('pointerdown', () => {
-            bossHP -= playerState.weaponDamage;
-            hpText.setText(`HP: ${bossHP}`);
-
-            if (bossHP <= 0) {
-                alert("🏆 VOCÊ DESTRUIU O BOSS!");
-                this.rollBossDrops();
-                playerState.dungeonLevel++;
-                this.scene.restart();
-            }
-        });
-    }
-
-    rollBossDrops() {
-        const rand = Math.random();
-        // 15% de chance de obter a Semente Divina Máxima
-        if (rand < 0.15) {
-            playerState.hotbar.seedType = 'Divina';
-            playerState.hotbar.seedLevel = 4;
-            playerState.hotbar.quantity += 1;
-            alert("🔥 RECOMPENSA DOS DEUSES! Você dropou uma SEMENTE DIVINA (Nível 4)!");
-        } else if (rand < 0.50) {
-            playerState.hotbar.seedType = 'Épica';
-            playerState.hotbar.seedLevel = 3;
-            playerState.hotbar.quantity += 2;
-            alert("⭐ O Boss deixou cair Sementes Épicas (Nível 3)!");
-        } else {
-            playerState.hotbar.quantity += 5;
-            alert("Drop comum: Você recebeu 5 sementes padrão.");
+            requestAnimationFrame(gameLoop);
         }
-    }
 
-    showWeaponSelector() {
-        this.add.text(450, 40, "Mudar Equipamento:", { fontSize: '14px', fill: '#fff' });
-        let spacing = 0;
-        Object.keys(weaponStats).forEach(wName => {
-            const btn = this.add.text(450, 70 + spacing, `[ ${wName} ]`, { fontSize: '12px', fill: '#3498db' }).setInteractive();
-            
-            btn.on('pointerover', () => {
-                this.tooltip?.destroy();
-                const stat = weaponStats[wName];
-                this.tooltip = this.add.text(450, 480, `Prós: ${stat.pros}\nContras: ${stat.cons}`, {fontSize:'12px', fill:'#f1c40f'});
-            });
-
-            btn.on('pointerdown', () => {
-                playerState.currentWeapon = wName;
-                playerState.weaponDamage = weaponStats[wName].damageBase + ((playerState.weaponLevel - 1) * 5);
-                alert(`Arma ativa: ${wName}`);
-            });
-            spacing += 25;
-        });
-    }
-}
-
-// --- CONFIGURAÇÃO INICIAL DO PHASER ---
-const config = {
-    type: Phaser.AUTO,
-    parent: 'game-container',
-    width: 800,
-    height: 600,
-    scene: [MainScene, DungeonScene]
-};
-
-const game = new Phaser.Game(config);
-
-// --- INTERAÇÕES DO PAINEL HACKER EM JAVASCRIPT ---
-document.getElementById('btn-toggle-hacker').addEventListener('click', () => {
-    const panel = document.getElementById('hacker-panel');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-});
-
-document.getElementById('btn-apply-hack').addEventListener('click', () => {
-    playerState.money = parseInt(document.getElementById('hack-money').value) || 0;
-    playerState.hotbar.quantity = parseInt(document.getElementById('hack-seeds-qty').value) || 0;
-    
-    const selectedSeed = document.getElementById('hack-seed-type').value;
-    playerState.hotbar.seedType = selectedSeed;
-    
-    if(selectedSeed === 'Comum') playerState.hotbar.seedLevel = 1;
-    if(selectedSeed === 'Rara') playerState.hotbar.seedLevel = 2;
-    if(selectedSeed === 'Épica') playerState.hotbar.seedLevel = 3;
-    if(selectedSeed === 'Divina') playerState.hotbar.seedLevel = 4;
-
-    playerState.weaponDamage = parseInt(document.getElementById('hack-damage').value) || 10;
-
-    alert("🚨 Códigos de trapaça injetados com sucesso!");
-    
-    if (game.scene.isActive('MainScene')) {
-        game.scene.getScene('MainScene').updateStatusDisplay();
-    }
-});
-</script>
-
-</body>
-</html>
+        function addItemToCollectedHotbar(itemKey, type, dataBlock) {
+            for (let i = 0; i < 8;
