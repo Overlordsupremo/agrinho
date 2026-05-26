@@ -20,6 +20,8 @@
         .btn-ui { width: 100%; margin-top: 4px; background: #4a5da3; color: white; border: 2px solid #232e5c; border-bottom-width: 4px; padding: 4px; font-weight: bold; cursor: pointer; font-size: 11px; text-transform: uppercase; }
         .btn-ui:active { border-bottom-width: 2px; margin-top: 6px; margin-bottom: -2px; }
 
+        #btn-fugir { display: none; background: #b91c1c; border-color: #7f1d1d; }
+
         #adm-trigger { position: absolute; top: 15px; right: 15px; background: #990000; color: #fff; border: 3px solid #ff3333; padding: 8px 12px; font-weight: bold; font-size: 12px; cursor: pointer; z-index: 200; text-transform: uppercase; }
         #adm-panel { display: none; position: absolute; top: 60px; right: 15px; background: #111116; border: 4px solid #ff3333; padding: 12px; z-index: 200; width: 340px; color: #00ff00; max-height: 85vh; overflow-y: auto; }
         .adm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; font-size: 11px; }
@@ -43,7 +45,7 @@
         .character { position: absolute; width: 50px; height: 50px; font-size: 24px; z-index: 10; border: 3px solid #1a110b; display: flex; align-items: center; justify-content: center; }
         .npc-label { position: absolute; top: -24px; background: #1c120c; color: #f4ecd8; padding: 2px 5px; border: 2px solid #573b24; font-size: 9px; font-weight: bold; white-space: nowrap; }
         
-        #farm-zones { position: absolute; top: 180px; left: 340px; display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100vw - 380px); z-index: 5; max-height: 60vh; overflow-y: auto; padding: 10px; }
+        #farm-zones { position: absolute; top: 220px; left: 340px; display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100vw - 380px); z-index: 5; max-height: 60vh; overflow-y: auto; padding: 10px; }
         .plot { width: 68px; height: 68px; background: #422a18; border: 4px solid #26170c; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
         .dungeon-ent { position: absolute; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 22px; z-index: 20; border-radius: 4px; }
@@ -53,7 +55,6 @@
         .crop { font-size: 28px; display: flex; flex-direction: column; align-items: center; }
         .crop.growing { filter: grayscale(80%) brightness(40%) scale(0.6); }
         
-        /* Mutações */
         .m-golden { filter: drop-shadow(0px 0px 4px #ffd700) brightness(1.2); }
         .m-frozen { filter: drop-shadow(0px 0px 4px #70c5ff) hue-rotate(140deg); }
         .m-divine { filter: drop-shadow(0px 0px 6px #ff00ff) brightness(1.3); }
@@ -83,7 +84,7 @@
 <body>
 
     <div id="ui-top">
-        <h2>Fazenda RPG Core v5.5</h2>
+        <h2>Fazenda RPG Core v6.0</h2>
         <div class="bar-container">
             <div id="hp-bar" class="hp-fill"></div>
             <div id="hp-text" class="bar-text">HP: 100 / 100</div>
@@ -97,6 +98,7 @@
         <p><span>⚔️ Arma:</span> <span id="weapon-status" style="color: #ffaa00;">Espada de Ferro</span></p>
         <p><span>🌱 Item Ativo:</span> <span id="selected-seed-text">Mão Vazia</span></p>
         <button class="btn-ui" onclick="openBackpackModal()">🎒 Mochila, Status & Forja [Espaço]</button>
+        <button class="btn-ui" id="btn-fugir" onclick="exitDungeon()">🚪 Forçar Saída da Masmorra</button>
         <button class="btn-ui" id="btn-buy-plot" onclick="buyNewPlot()" style="background:#c27f38; border-color:#6e4215;">🟫 Expandir Lote (<span id="plot-cost">200</span> 🪙)</button>
     </div>
 
@@ -120,7 +122,7 @@
         <div class="hotbar-slot selected" id="slot-0" onclick="selectSlot(0)"><span class="slot-num">1</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
         <div class="hotbar-slot" id="slot-1" onclick="selectSlot(1)"><span class="slot-num">2</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
         <div class="hotbar-slot" id="slot-2" onclick="selectSlot(2)"><span class="slot-num">3</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
-        <div class="hotbar-slot" id="slot-3" onclick="selectSlot(3 safe">4</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
+        <div class="hotbar-slot" id="slot-3" onclick="selectSlot(3)">4<span class="slot-num">4</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
         <div class="hotbar-slot" id="slot-4" onclick="selectSlot(4)"><span class="slot-num">5</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
         <div class="hotbar-slot" id="slot-5" onclick="selectSlot(5)"><span class="slot-num">6</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
         <div class="hotbar-slot" id="slot-6" onclick="selectSlot(6)"><span class="slot-num">7</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
@@ -147,15 +149,16 @@
     </div>
 
     <script>
-        // STATUS JOGADOR - Começa com 3 lotes nativos
+        // STATUS JOGADOR
         let player = { 
             x: 200, y: 250, speedBase: 5, inDungeon: false, isInfernal: false, weapon: 'espada', armor: 'nenhuma', enchantment: null,
             hp: 100, lvl: 1, xp: 0, nextXp: 100, statPoints: 0,
-            stats: { vida: 0, dano: 0, defesa: 0, sorte: 0, velocidade: 0, critico: 0 }
+            stats: { vida: 0, dano: 0, defensa: 0, sorte: 0, velocidade: 0, critico: 0 }
         };
 
         let gameState = { coins: 150, maxPlots: 3, activeHotbarSlot: 0, currentMutationAltar: null, admUnlocked: false };
         
+        // NOVO ARSENAL EXPANDIDO COM MAIS 7 ARMAS EXCLUSIVAS (TOTAL: 16 ARMAS)
         let arsenal = {
             espada: { name: "Espada de Ferro", icon: "⚔️", damage: 18, range: 70, speed: 200, ranged: false },
             lança: { name: "Lança Pontuda", icon: "🔱", damage: 24, range: 120, speed: 380, ranged: false },
@@ -165,7 +168,16 @@
             cetro: { name: "Cetro Solar", icon: "🔱", damage: 32, range: 100, speed: 400, ranged: false },
             arco_void: { name: "Arco do Vazio", icon: "🏹", damage: 38, range: 500, speed: 500, ranged: true },
             espada_cristal: { name: "Lâmina de Cristal", icon: "💎", damage: 55, range: 85, speed: 240, ranged: false },
-            lamina_infernal: { name: "Lâmina Infernal", icon: "🔥", damage: 75, range: 90, speed: 220, ranged: false }
+            lamina_infernal: { name: "Lâmina Infernal", icon: "🔥", damage: 75, range: 90, speed: 220, ranged: false },
+            
+            // As 7 Novas Armas Adicionadas:
+            machado_caos: { name: "Machado do Caos", icon: "🪓", damage: 65, range: 75, speed: 450, ranged: false },
+            foice_almas: { name: "Foice Colhedora de Almas", icon: "🌾", damage: 80, range: 110, speed: 500, ranged: false },
+            besta_pesada: { name: "Besta de Repetição Pesada", icon: "🏹", damage: 50, range: 450, speed: 400, ranged: true },
+            cetro_glacial: { name: "Cetro Incrustado de Gelo", icon: "🔮", damage: 42, range: 150, speed: 300, ranged: false },
+            katana_vento: { name: "Katana de Vento Relâmpago", icon: "⚔️", damage: 35, range: 70, speed: 100, ranged: false },
+            clava_obsidiana: { name: "Clava de Obsidiana Bruta", icon: "🪵", damage: 95, range: 80, speed: 850, ranged: false },
+            tridente_abismo: { name: "Tridente do Abismo Profundo", icon: "🔱", damage: 110, range: 130, speed: 400, ranged: false }
         };
 
         let armaduras = {
@@ -239,13 +251,12 @@
             updateUI();
             updateHotbarVisuals();
 
-            // Loops de efeitos periódicos (Ex: Incêndio/Flame)
             setInterval(() => {
                 if (player.inDungeon) {
                     dungeon.entities.forEach(ent => {
                         if (ent.type === 'mob' && ent.burnTicks > 0) {
                             ent.burnTicks--;
-                            ent.hp -= 8; // Dano contínuo por segundo
+                            ent.hp -= 8;
                             ent.el.querySelector('.hp-fill').style.width = `${Math.max(0, (ent.hp/ent.maxHp)*100)}%`;
                             if (ent.hp <= 0) handleEntityDeath(ent);
                         }
@@ -269,7 +280,6 @@
                 if (player.inDungeon) { dungeonLogicUpdate(); projectilesUpdate(); }
             }, 100);
 
-            // Escuta de teclado nativa sem delay de repetição
             window.addEventListener('keydown', e => {
                 keysPressed[e.key.toLowerCase()] = true;
                 if (document.activeElement.tagName === 'INPUT') return;
@@ -430,8 +440,7 @@
             } 
             else if (plot.status === 'ready') {
                 let finalMult = 1.0;
-                let labels = [];
-                plot.mutations.forEach(m => { finalMult *= mutationConfig[m].mult; labels.push(mutationConfig[m].label); });
+                plot.mutations.forEach(m => { finalMult *= mutationConfig[m].mult; });
 
                 let calculatedPrice = fruitData[plot.fruit].basePrice * finalMult * plot.weight;
                 let finalName = `${fruitData[plot.fruit].name} (${plot.weight}kg)`;
@@ -455,13 +464,12 @@
             if (isCrit) finalDmg *= 2;
 
             if (wep.ranged) {
-                spawnProjectile(player.x + 20, player.y + 25, targetX, targetY, 9, "🏹", false, finalDmg);
+                spawnProjectile(player.x + 20, player.y + 25, targetX, targetY, 9, wep.icon, false, finalDmg);
             } else {
                 dungeon.entities.forEach(ent => {
                     let d = Math.sqrt(Math.pow(player.x - ent.x, 2) + Math.pow(player.y - ent.y, 2));
                     if (d <= wep.range && ent.type === 'mob') {
                         ent.hp -= finalDmg;
-                        // Encantamento de Fogo (Flame 1) - Alvo queima por 5 segundos
                         if (player.enchantment === 'flame1') ent.burnTicks = 5;
                         if (player.enchantment === 'vamp1') player.hp = Math.min(getMaxHp(), player.hp + (finalDmg * 0.05));
 
@@ -519,6 +527,7 @@
         function enterDungeon() {
             player.inDungeon = true; player.isInfernal = false;
             document.getElementById('game-canvas').className = 'dungeon-mode';
+            document.getElementById('btn-fugir').style.display = 'block'; // Ativa botão de segurança
             hideFarm(); generateFloor();
         }
 
@@ -527,14 +536,19 @@
             player.inDungeon = true; player.isInfernal = true;
             dungeon.floor = 6;
             document.getElementById('game-canvas').className = 'infernal-mode';
+            document.getElementById('btn-fugir').style.display = 'block';
             generateFloor();
         }
 
         function exitDungeon() {
-            player.inDungeon = false; document.getElementById('game-canvas').className = '';
+            player.inDungeon = false; 
+            document.getElementById('game-canvas').className = '';
             document.getElementById('portal-infernal').style.display = 'none';
+            document.getElementById('btn-fugir').style.display = 'none'; // Oculta botão de fuga
             document.getElementById('dungeon-entities-layer').innerHTML = '';
-            dungeon.entities = []; showFarm(); updateUI();
+            dungeon.entities = []; 
+            showFarm(); 
+            updateUI();
         }
 
         function hideFarm() { ['farm-zones','npc-tiao','npc-mago','npc-chico'].forEach(id => document.getElementById(id).style.display = 'none'); }
@@ -560,7 +574,6 @@
                 }
             }
 
-            // Geração de recursos minerais pelas salas
             for (let m = 0; m < 2; m++) {
                 let mx = Math.random() * 700 + 300, my = Math.random() * 400 + 150;
                 let kind = player.isInfernal ? (Math.random() > 0.5 ? 'obsidiana' : 'cristal_infernal') : 'ferro';
@@ -697,30 +710,45 @@
 
         function renderForjaCustom() {
             let content = document.getElementById('modal-content');
-            content.innerHTML = `<h3>Inventário de Matéria-Prima</h3><p>🪨 Fe: ${minerios.ferro} | ✨ Au: ${minerios.ouro} | 🔥 Obs: ${minerios.obsidiana} | 💎 Cristal: ${minerios.cristal} | 🌋 Cristal Inf: ${minerios.cristal_infernal} | 🦎 Escamas: ${dropsMasmorra.escamas}</p><hr>`;
+            content.innerHTML = `<h3>Materiais Disponíveis</h3><p>🪨 Fe: ${minerios.ferro} | ✨ Au: ${minerios.ouro} | 🔥 Obs: ${minerios.obsidiana} | 💎 Cri: ${minerios.cristal} | 🌋 Inf: ${minerios.cristal_infernal} | 🦎 Esc: ${dropsMasmorra.escamas}</p><hr>`;
             
-            // Receitas de Armas Reintegradas
+            content.innerHTML += `<h3>Menu de Forja: Armas (16 Opções)</h3>`;
+            content.innerHTML += `<div class="shop-item"><div>⚔️ Espada de Ferro (Grátis Inicial)</div><button class="buy-btn" onclick="selectWeaponDirect('espada')">Equipar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🔱 Lança Pontuda (Grátis Inicial)</div><button class="buy-btn" onclick="selectWeaponDirect('lança')">Equipar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🏹 Arco de Caça (Grátis Inicial)</div><button class="buy-btn" onclick="selectWeaponDirect('arco')">Equipar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🗡️ Adaga Sombria (Grátis Inicial)</div><button class="buy-btn" onclick="selectWeaponDirect('adaga')">Equipar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🔱 Cetro Solar (Grátis Inicial)</div><button class="buy-btn" onclick="selectWeaponDirect('cetro')">Equipar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🏹 Arco do Vazio (Grátis Inicial)</div><button class="buy-btn" onclick="selectWeaponDirect('arco_void')">Equipar</button></div>`;
+            
             content.innerHTML += `<div class="shop-item"><div>🔨 Martelo Titânico (Req: 15 Ouro)</div><button class="buy-btn" onclick="craftArma('martelo', 0, 15, 0, 0)">Forjar</button></div>`;
-            content.innerHTML += `<div class="shop-item"><div>⚔️ Lâmina de Cristal (Req: 10 Cristais)</div><button class="buy-btn" onclick="craftArma('espada_cristal', 0, 0, 0, 10)">Forjar</button></div>`;
-            content.innerHTML += `<div class="shop-item"><div>🔥 Lâmina Infernal (Req: 8 Cristais Infernais)</div><button class="buy-btn" onclick="craftArmaInfernal()">Forjar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>💎 Lâmina de Cristal (Req: 10 Cristais)</div><button class="buy-btn" onclick="craftArma('espada_cristal', 0, 0, 0, 10)">Forjar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🔥 Lâmina Infernal (Req: 8 Cristais Infernais)</div><button class="buy-btn" onclick="craftArma('lamina_infernal', 0, 0, 0, 0, 8)">Forjar</button></div>`;
 
-            // Novas Armaduras do Pedido
-            content.innerHTML += `<h3>Armaduras Especiais</h3>`;
+            // RECEITAS PARA AS NOVAS 7 ARMAS
+            content.innerHTML += `<div class="shop-item"><div>🪓 Machado do Caos (Req: 10 Ferro, 5 Obsidiana)</div><button class="buy-btn" onclick="craftArma('machado_caos', 10, 0, 5, 0)">Forjar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🌾 Foice Colhedora de Almas (Req: 15 Obsidiana)</div><button class="buy-btn" onclick="craftArma('foice_almas', 0, 0, 15, 0)">Forjar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🏹 Besta de Repetição Pesada (Req: 12 Ferro, 4 Ouro)</div><button class="buy-btn" onclick="craftArma('besta_pesada', 12, 4, 0, 0)">Forjar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🔮 Cetro Glacial (Req: 8 Cristais)</div><button class="buy-btn" onclick="craftArma('cetro_glacial', 0, 0, 0, 8)">Forjar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>⚔️ Katana de Vento Relâmpago (Req: 15 Ferro)</div><button class="buy-btn" onclick="craftArma('katana_vento', 15, 0, 0, 0)">Forjar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🪵 Clava de Obsidiana Bruta (Req: 20 Obsidiana)</div><button class="buy-btn" onclick="craftArma('clava_obsidiana', 0, 0, 20, 0)">Forjar</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div>🔱 Tridente do Abismo Profundo (Req: 12 Cristais Infernais, 5 Ouro)</div><button class="buy-btn" onclick="craftArma('tridente_abismo', 0, 5, 0, 0, 12)">Forjar</button></div>`;
+
+            content.innerHTML += `<h3>Menu de Forja: Armaduras</h3>`;
             content.innerHTML += `<div class="shop-item"><div>🛡️ Armadura de Cristal (Req: 12 Cristais)</div><button class="buy-btn" onclick="craftArmadura('cristal')">Forjar</button></div>`;
             content.innerHTML += `<div class="shop-item"><div>🛡️ Armadura de Escamas (Req: 10 Escamas)</div><button class="buy-btn" onclick="craftArmadura('escamas')">Forjar</button></div>`;
             content.innerHTML += `<div class="shop-item"><div>🛡️ Armadura de Crista (Req: 5 Obsidiana, 5 Cristais)</div><button class="buy-btn" onclick="craftArmadura('crista')">Forjar</button></div>`;
-            content.innerHTML += `<div class="shop-item"><div style="color:#ff3300;">👑 Armadura Infernal Suprema (Super Requisitos)</div><button class="buy-btn" onclick="craftInfernalSuprema()">Forjar Suprema</button></div>`;
+            content.innerHTML += `<div class="shop-item"><div style="color:#ff3300;">👑 Armadura Infernal Suprema (10 Obs, 15 Cri, 15 Cri Inf, 5 Au, 7 Fe, 8 Escamas)</div><button class="buy-btn" onclick="craftInfernalSuprema()">Forjar Suprema</button></div>`;
         }
 
-        function craftArma(key, fe, au, obs, cri) {
-            if (minerios.ferro >= fe && minerios.ouro >= au && minerios.cristal >= cri) {
-                minerios.ferro -= fe; minerios.ouro -= au; minerios.cristal -= cri;
-                player.weapon = key; alert("Arma alterada!"); closeModal(); updateUI();
-            } else alert("Faltam recursos!");
+        function selectWeaponDirect(key) {
+            player.weapon = key; alert(`Equipado: ${arsenal[key].name}`); closeModal(); updateUI();
         }
 
-        function craftArmaInfernal() {
-            if (minerios.cristal_infernal >= 8) { minerios.cristal_infernal -= 8; player.weapon = 'lamina_infernal'; closeModal(); updateUI(); } else alert("Faltam cristais infernais!");
+        function craftArma(key, fe, au, obs, cri, criInf = 0) {
+            if (minerios.ferro >= fe && minerios.ouro >= au && minerios.obsidiana >= obs && minerios.cristal >= cri && minerios.cristal_infernal >= criInf) {
+                minerios.ferro -= fe; minerios.ouro -= au; minerios.obsidiana -= obs; minerios.cristal -= cri; minerios.cristal_infernal -= criInf;
+                player.weapon = key; alert(`Sucesso! Você forjou e equipou: ${arsenal[key].name}!`); closeModal(); updateUI();
+            } else alert("Recursos de mineração insuficientes para esta arma!");
         }
 
         function craftArmadura(tipo) {
@@ -728,13 +756,13 @@
             else if(tipo === 'escamas' && dropsMasmorra.escamas >= 10) { dropsMasmorra.escamas -= 10; player.armor = 'escamas'; }
             else if(tipo === 'crista' && minerios.obsidiana >= 5 && minerios.cristal >= 5) { minerios.obsidiana -= 5; minerios.cristal -= 5; player.armor = 'crista'; }
             else { alert("Recursos insuficientes!"); return; }
-            closeModal(); updateUI();
+            alert("Nova armadura equipada!"); closeModal(); updateUI();
         }
 
         function craftInfernalSuprema() {
             if (minerios.obsidiana >= 10 && minerios.cristal >= 15 && minerios.cristal_infernal >= 15 && minerios.ouro >= 5 && minerios.ferro >= 7 && dropsMasmorra.escamas >= 8) {
                 minerios.obsidiana -= 10; minerios.cristal -= 15; minerios.cristal_infernal -= 15; minerios.ouro -= 5; minerios.ferro -= 7; dropsMasmorra.escamas -= 8;
-                player.armor = 'infernal_suprema'; alert("Você forjou e equipou a armadura mais poderosa do jogo!"); closeModal(); updateUI();
+                player.armor = 'infernal_suprema'; alert("Você equipou a Armadura Infernal Suprema!"); closeModal(); updateUI();
             } else { alert("Você não possui todos os materiais da receita lendária!"); }
         }
 
