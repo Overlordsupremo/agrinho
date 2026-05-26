@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fazendinha Pixel RPG - Boss Update</title>
+    <title>Fazendinha Pixel RPG - Ultimate Boss & ADM Update</title>
     <style>
         * { box-sizing: border-box; user-select: none; image-rendering: pixelated; }
         body { margin: 0; padding: 0; background-color: #1a2e10; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
@@ -22,6 +22,13 @@
         .btn-mochila { width: 100%; margin-top: 6px; background: #4a5da3; color: white; border: 2px solid #232e5c; border-bottom-width: 4px; padding: 5px; font-weight: bold; cursor: pointer; font-size: 11px; text-transform: uppercase; text-shadow: 1px 1px #000; }
         .btn-mochila:active { border-bottom-width: 2px; margin-top: 8px; margin-bottom: -2px; }
 
+        /* Painel de ADM Flutuante */
+        #adm-trigger { position: absolute; top: 15px; right: 15px; background: #990000; color: #fff; border: 3px solid #ff3333; padding: 8px 12px; font-weight: bold; font-size: 12px; cursor: pointer; z-index: 200; box-shadow: 0 4px 0 #440000; text-transform: uppercase; }
+        #adm-panel { display: none; position: absolute; top: 60px; right: 15px; background: #111116; border: 4px dashed #ff3333; padding: 12px; z-index: 200; width: 280px; color: #00ff00; box-shadow: 0 6px 12px rgba(0,0,0,0.6); }
+        #adm-panel h3 { margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #ff3333; text-transform: uppercase; border-bottom: 1px solid #ff3333; padding-bottom: 4px; }
+        .adm-btn { width: 100%; background: #222; color: #00ff00; border: 1px solid #00ff00; padding: 5px; margin-bottom: 6px; font-family: inherit; font-size: 11px; cursor: pointer; text-align: left; }
+        .adm-btn:hover { background: #003300; }
+
         /* Hotbar Rápida */
         #hotbar-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; background: #18120c; padding: 6px; border: 4px solid #4a3319; z-index: 100; box-shadow: 0 6px 0 #000; }
         .hotbar-slot { width: 52px; height: 52px; background: #362517; border: 3px solid #22160e; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
@@ -31,11 +38,11 @@
         .hotbar-slot .slot-qty { position: absolute; bottom: 1px; right: 2px; font-size: 10px; color: #ffcc00; font-weight: bold; text-shadow: 1px 1px #000; }
         .hotbar-slot .slot-lvl { position: absolute; top: 1px; right: 2px; font-size: 9px; color: #5cc8ff; font-weight: bold; text-shadow: 1px 1px #000; }
 
-        /* Cenários e Canvases */
+        /* Canvases */
         #game-canvas { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; background: #4d7a34; background-image: radial-gradient(#56873b 20%, transparent 20%); background-size: 16px 16px; z-index: 1; }
         #game-canvas.dungeon-mode { background: #1d1d24; background-image: linear-gradient(45deg, #16161c 25%, transparent 25%); background-size: 32px 32px; }
         
-        /* Entidades Pixel Art */
+        /* Entidades */
         #player { position: absolute; width: 42px; height: 52px; background: linear-gradient(to bottom, #7fa4ff 20%, #ffcc55 20%, #ffcc55 50%, #444 50%, #333 80%); border: 3px solid #111; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 50; box-shadow: 0 6px 0 rgba(0,0,0,0.2); }
         #weapon-render { position: absolute; right: -12px; top: 8px; font-size: 18px; transition: transform 0.1s; transform-origin: bottom left; filter: drop-shadow(2px 2px 0px #000); }
 
@@ -45,11 +52,11 @@
         #farm-zones { position: absolute; top: 160px; left: 340px; display: flex; flex-wrap: wrap; gap: 8px; max-width: calc(100vw - 720px); z-index: 5; }
         .plot { width: 72px; height: 72px; background: #422a18; border: 4px solid #26170c; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 4px 6px #000; }
         
-        /* Inimigos com barra de vida fluida */
+        /* Barra de Vida dos Mobs Reduzindo com suavidade */
         .dungeon-ent { position: absolute; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 22px; z-index: 20; transition: left 0.1s linear, top 0.1s linear; }
         .dungeon-ent .ent-weapon { position: absolute; right: -8px; bottom: 4px; font-size: 12px; }
         .hp-bar { position: absolute; top: -12px; width: 120%; left: -10%; height: 6px; background: #220000; border: 1px solid #000; }
-        .hp-fill { height: 100%; background: #e61919; width: 100%; transition: width 0.2s ease-out; } /* Redução suave da vida dos mobs */
+        .hp-fill { height: 100%; background: #e61919; width: 100%; transition: width 0.2s ease-out; }
 
         /* Projéteis */
         .projectile { position: absolute; width: 10px; height: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 60; pointer-events: none; }
@@ -99,6 +106,17 @@
         <div id="shop-timer">Loja reestoca em: 03:00</div>
     </div>
 
+    <button id="adm-trigger" onclick="toggleAdmPanel()">🛠️ Menu ADM</button>
+    <div id="adm-panel">
+        <h3>Painel de Controle Hack</h3>
+        <button class="adm-btn" onclick="admInjetarMoedas()">🪙 +1.000 Moedas Rápidas</button>
+        <button class="adm-btn" onclick="admGarantirLotes()">🌱 Liberar Lotes Máximos (15)</button>
+        <button class="adm-btn" onclick="admToggleInvencivel()">🛡️ Modo Deus (Invencível): <span id="adm-god-txt" style="color:#ff3333">OFF</span></button>
+        <button class="adm-btn" onclick="admSpawnBossImediato()">👑 Forçar Spawn de Boss no Andar</button>
+        <button class="adm-btn" onclick="admPularAndar()">⚔️ Avançar +1 Andar de Masmorra</button>
+        <button class="adm-btn" onclick="admRegenTotal()">❤️ Curar HP 100%</button>
+    </div>
+
     <div id="hotbar-container">
         <div class="hotbar-slot selected" id="slot-0" onclick="selectSlot(0)"><span class="slot-num">1</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
         <div class="hotbar-slot" id="slot-1" onclick="selectSlot(1)"><span class="slot-num">2</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
@@ -138,7 +156,7 @@
 
     <script>
         let player = { x: 200, y: 250, speed: 5, inDungeon: false, weapon: 'espada', hp: 100, maxHp: 100 };
-        let gameState = { coins: 150, maxPlots: 6, speedMultiplier: 1.0, weightBonus: 0, mutationChance: 0.06, activeHotbarSlot: 0 };
+        let gameState = { coins: 150, maxPlots: 6, speedMultiplier: 1.0, weightBonus: 0, mutationChance: 0.06, activeHotbarSlot: 0, godMode: false };
         
         let arsenal = {
             espada: { name: "Espada de Ferro", icon: "⚔️", level: 1, damage: 18, range: 70, speed: 200 },
@@ -193,7 +211,7 @@
             updateUI();
             updateHotbarVisuals();
 
-            // Timer de reestoque
+            // Contador da Loja
             setInterval(() => {
                 if (shopTimer > 0) shopTimer--;
                 else { refreshShopSeeds(); shopTimer = 180; }
@@ -202,7 +220,7 @@
                 if (tEl) tEl.innerText = `Loja reestoca em: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }, 1000);
 
-            // Loop secundário de lógicas rápidas (Crescimento de plantas, IAs e Projéteis)
+            // Atualizador do Motor (Fazendas, IAs de Combate e Projéteis)
             setInterval(() => {
                 plots.forEach(plot => {
                     if (plot.status === 'growing') {
@@ -247,6 +265,45 @@
             window.addEventListener('keyup', e => { keysPressed[e.key.toLowerCase()] = false; });
 
             gameLoop();
+        }
+
+        /* Funções Extras do Painel de ADM */
+        function toggleAdmPanel() {
+            let panel = document.getElementById('adm-panel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+        function admInjetarMoedas() {
+            gameState.coins += 1000;
+            updateUI();
+        }
+        function admGarantirLotes() {
+            gameState.maxPlots = 15;
+            createPlots();
+        }
+        function admToggleInvencivel() {
+            gameState.godMode = !gameState.godMode;
+            let txt = document.getElementById('adm-god-txt');
+            if (gameState.godMode) { txt.innerText = "ON"; txt.style.color = "#00ff00"; player.hp = player.maxHp; }
+            else { txt.innerText = "OFF"; txt.style.color = "#ff3333"; }
+            updateUI();
+        }
+        function admSpawnBossImediato() {
+            if (!player.inDungeon) return alert("Entre na Masmorra primeiro para invocar!");
+            let layer = document.getElementById('dungeon-entities-layer');
+            layer.innerHTML = '';
+            dungeon.entities = [];
+            spawnEntity('Rei Slime Invocado 👑', 600, 250, 400, "👑", true, '', 'slime_boss');
+        }
+        function admPularAndar() {
+            if (!player.inDungeon) return alert("Entre na Masmorra primeiro!");
+            dungeon.floor++;
+            alert(`Avançado para o andar ${dungeon.floor}`);
+            generateDungeonFloor();
+            updateUI();
+        }
+        function admRegenTotal() {
+            player.hp = player.maxHp;
+            updateUI();
         }
 
         function createPlots() {
@@ -372,7 +429,6 @@
             let plot = plots[index];
             let activeItem = hotbar[gameState.activeHotbarSlot];
 
-            // Plantar Semente
             if (plot.status === 'empty' && activeItem && activeItem.type === 'semente' && activeItem.qty > 0) {
                 plot.status = 'growing';
                 plot.fruit = activeItem.id.split('_')[0];
@@ -393,7 +449,6 @@
                 updateUI();
                 updateHotbarVisuals();
             } 
-            // Aplicar Fertilizante Reintroduzido
             else if (plot.status === 'growing' && activeItem && activeItem.type === 'fertilizante' && activeItem.qty > 0) {
                 if (activeItem.id === 'grow_fertilizer') {
                     plot.timer /= 2;
@@ -412,7 +467,6 @@
                 renderPlotAsset(plot);
                 updateHotbarVisuals();
             }
-            // Colher Planta Pronta
             else if (plot.status === 'ready') {
                 let mult = 1.0 + (plot.seedLevel * 0.5); 
                 if (plot.mutationType === 'golden') mult *= 2.5;
@@ -450,7 +504,7 @@
                     
                     ent.hp -= finalDmg;
                     
-                    // Barra de vida abaixando graficamente proporcional
+                    // Ajuste visual suave da vida do mob reduzindo
                     let pct = Math.max(0, (ent.hp / ent.maxHp) * 100);
                     let fillBar = ent.el.querySelector('.hp-fill');
                     if (fillBar) fillBar.style.width = `${pct}%`;
@@ -473,12 +527,11 @@
                 if (ent.kind === 'ferro') minerios.ferro += Math.floor(Math.random() * 3) + 2;
                 if (ent.kind === 'ouro') minerios.ouro += Math.floor(Math.random() * 2) + 1;
             } else {
-                // Moedas com base no nível/tipo do monstro
                 let reward = ent.isBoss ? 150 : 12;
                 gameState.coins += reward;
                 
                 if (ent.isBoss) {
-                    alert(`🏆 Boss Derrotado! Você limpou o Andar Especial ${dungeon.floor}! Recompensa Divina Injetada.`);
+                    alert(`🏆 Boss Derrotado! Você limpou o Andar Especial ${dungeon.floor}!`);
                     addItemToCollectedHotbar('divina_semente', 'semente', 4, null);
                 } else if (Math.random() < 0.35) {
                     let seeds = ['maca', 'banana', 'cenoura', 'laranja', 'tomate'];
@@ -526,7 +579,7 @@
             dungeon.entities = [];
             projectiles = [];
 
-            // SISTEMA DOS 5 BOSSES (Andares múltiplos de 5 até o 25)
+            // 5 BOSSES
             if (dungeon.floor === 5) {
                 spawnEntity('Rei Slime 👑', 600, 250, 250, "👑", true, '', 'slime_boss');
             } else if (dungeon.floor === 10) {
@@ -538,7 +591,7 @@
             } else if (dungeon.floor === 25) {
                 spawnEntity('Agrinho Corrompido 👾', 600, 250, 1000, "👾", true, '', 'final_boss');
             } 
-            // SISTEMA DE 5 MOBS COMUNS DIFERENTES
+            // 5 MOBS COMUNS
             else {
                 let mobCount = 3 + Math.floor(dungeon.floor / 2);
                 for (let i = 0; i < Math.min(mobCount, 8); i++) {
@@ -547,25 +600,21 @@
                     let rand = Math.random();
 
                     if (rand < 0.25) {
-                        // 1. Slime Comum
                         spawnEntity('Slime Verde', rx, ry, 30 + (dungeon.floor * 5), "🟢", false);
                     } else if (rand < 0.50) {
-                        // 2. Goblin Saqueador
                         spawnEntity('Goblin', rx, ry, 45 + (dungeon.floor * 6), "👹", false);
                     } else if (rand < 0.70) {
-                        // 3. Esqueleto Arqueiro (Menos vida, ataca de longe com projéteis reais)
+                        // Arqueiro: pouca vida, ataque longo alcance por projétil
                         spawnEntity('Esqueleto Arqueiro', rx, ry, 25 + (dungeon.floor * 4), "💀", false, 'arco');
                     } else if (rand < 0.88) {
-                        // 4. Homem-Lagarto (Mais robusto, usa lança e tem MUITO mais vida)
+                        // Homem-Lagarto: tanque robusto com lança e muita vida
                         spawnEntity('Homem-Lagarto', rx, ry, 85 + (dungeon.floor * 12), "🦎", false, 'lança');
                     } else {
-                        // 5. Morcego das Minas (Rápido e furtivo)
                         spawnEntity('Morcego', rx, ry, 20 + (dungeon.floor * 4), "🦇", false);
                     }
                 }
             }
 
-            // Spawna veios de minério
             let mines = Math.floor(Math.random() * 3) + 2;
             for(let i=0; i<mines; i++) {
                 let rx = Math.random() * 650 + 300;
@@ -626,13 +675,10 @@
                 let dx = player.x - ent.x;
                 let dy = player.y - ent.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-
-                // IA de Movimentação
                 let chaseDist = ent.weaponType === 'arco' ? 240 : 380;
                 
                 if (dist > 15 && dist < chaseDist) {
                     let sp = ent.isBoss ? 1.8 : (ent.name === 'Morcego' ? 3.2 : 2.2);
-                    // Esqueletos arqueiros tentam manter recuo se colados demais
                     if (ent.weaponType === 'arco' && dist < 120) {
                         ent.x -= (dx / dist) * sp;
                         ent.y -= (dy / dist) * sp;
@@ -644,368 +690,9 @@
                     ent.el.style.top = ent.y + 'px';
                 }
 
-                // Logica de Ataques e Projéteis dos Mobs e Bosses
                 ent.cooldown = (ent.cooldown || 0) + 1;
                 if (ent.cooldown >= 25) { 
                     ent.cooldown = 0;
 
-                    // Ataque de Longo Alcance: Esqueleto Arqueiro
                     if (ent.weaponType === 'arco' && dist < 300) {
-                        spawnProjectile(ent.x, ent.y, player.x, player.y, 6, "🏹");
-                    }
-
-                    // ATAQUES ESPECIAIS DOS 5 BOSSES
-                    if (ent.isBoss && dist < 450) {
-                        if (ent.bossType === 'slime_boss') {
-                            // Boss 1: Invoca Mini Slimes
-                            spawnEntity('Mini Slime', ent.x + 30, ent.y + 30, 20, "🟢");
-                        } 
-                        else if (ent.bossType === 'mage_boss') {
-                            // Boss 2: Magia Sombria
-                            spawnProjectile(ent.x, ent.y, player.x, player.y, 5, "🔮");
-                        } 
-                        else if (ent.bossType === 'lizard_boss') {
-                            // Boss 3: Investida Veloz
-                            ent.x += (dx / dist) * 75;
-                            ent.y += (dy / dist) * 75;
-                        } 
-                        else if (ent.bossType === 'demon_boss') {
-                            // Boss 4: Disparo Triplo de Fogo
-                            spawnProjectile(ent.x, ent.y, player.x, player.y, 6, "🔥");
-                            spawnProjectile(ent.x, ent.y, player.x + 40, player.y + 40, 6, "🔥");
-                            spawnProjectile(ent.x, ent.y, player.x - 40, player.y - 40, 6, "🔥");
-                        } 
-                        else if (ent.bossType === 'final_boss') {
-                            // Boss 5: Explosão Circular de Projéteis Malignos
-                            let angles = [0, 45, 90, 135, 180, 225, 270, 315];
-                            angles.forEach(a => {
-                                let rad = a * Math.PI / 180;
-                                spawnProjectile(ent.x, ent.y, ent.x + Math.cos(rad)*100, ent.y + Math.sin(rad)*100, 5, "👾");
-                            });
-                        }
-                    }
-                }
-
-                // Dano Físico / Corpo a Corpo
-                let hitRange = ent.weaponType === 'lança' ? 45 : 32;
-                if (dist < hitRange) {
-                    let dmg = ent.name === 'Homem-Lagarto' ? 4 : (ent.isBoss ? 7 : 2);
-                    player.hp -= dmg;
-                    if (player.hp <= 0) handlePlayerDefeat();
-                    updateUI();
-                }
-            });
-        }
-
-        function projectilesUpdate() {
-            projectiles.forEach((proj, idx) => {
-                proj.x += proj.vx;
-                proj.y += proj.vy;
-                proj.el.style.left = proj.x + 'px';
-                proj.el.style.top = proj.y + 'px';
-
-                // Colisão contra o Jogador
-                let pDist = Math.sqrt(Math.pow(player.x - proj.x, 2) + Math.pow(player.y - proj.y, 2));
-                if (proj.isEnemy && pDist < 25) {
-                    player.hp -= 8; // Dano do projétil arqueiro/boss
-                    proj.el.remove();
-                    projectiles.splice(idx, 1);
-                    if (player.hp <= 0) handlePlayerDefeat();
-                    updateUI();
-                }
-
-                // Destruir projéteis fora da tela
-                if (proj.x < 0 || proj.x > window.innerWidth || proj.y < 0 || proj.y > window.innerHeight) {
-                    if (proj.el) proj.el.remove();
-                    projectiles.splice(idx, 1);
-                }
-            });
-        }
-
-        function handlePlayerDefeat() {
-            alert("💔 Seu HP zerou! Você foi resgatado de volta para a Fazenda em segurança mas perdeu 20% das moedas.");
-            gameState.coins *= 0.8;
-            exitDungeon();
-            player.x = 200; player.y = 250;
-            player.hp = player.maxHp;
-            updateUI();
-        }
-
-        function checkDungeonFloorClear() {
-            let hostiles = dungeon.entities.filter(e => e.type !== 'minerio').length;
-            if (hostiles === 0) {
-                setTimeout(() => {
-                    dungeon.floor++;
-                    alert(`⚔️ Avançando para o Andar Combatente de número: ${dungeon.floor}!`);
-                    generateDungeonFloor();
-                }, 600);
-            }
-        }
-
-        function handleNPCDetection() {
-            let tiaoDiv = document.getElementById('npc-tiao');
-            let magoDiv = document.getElementById('npc-mago');
-            let chicoDiv = document.getElementById('npc-chico');
-            let dungDiv = document.getElementById('npc-dungeon');
-
-            if (player.inDungeon) {
-                if (Math.sqrt(Math.pow(player.x - dungDiv.offsetLeft, 2) + Math.pow(player.y - dungDiv.offsetTop, 2)) < 70) exitDungeon();
-                return;
-            }
-
-            if (Math.sqrt(Math.pow(player.x - tiaoDiv.offsetLeft, 2) + Math.pow(player.y - tiaoDiv.offsetTop, 2)) < 65) openNPCModal('tiao');
-            else if (Math.sqrt(Math.pow(player.x - magoDiv.offsetLeft, 2) + Math.pow(player.y - magoDiv.offsetTop, 2)) < 65) openNPCModal('mago');
-            else if (Math.sqrt(Math.pow(player.x - chicoDiv.offsetLeft, 2) + Math.pow(player.y - chicoDiv.offsetTop, 2)) < 65) openNPCModal('chico');
-            else if (Math.sqrt(Math.pow(player.x - dungDiv.offsetLeft, 2) + Math.pow(player.y - dungDiv.offsetTop, 2)) < 65) enterDungeon();
-        }
-
-        function openNPCModal(npcType) {
-            let modal = document.getElementById('game-modal');
-            let title = document.getElementById('modal-title');
-            let tabs = document.getElementById('modal-tabs');
-            modal.style.display = 'block';
-            tabs.innerHTML = '';
-            currentModalNPC = npcType;
-
-            if (npcType === 'tiao') {
-                title.innerText = "Mercado do Seu Tião";
-                tabs.innerHTML = `
-                    <button class="tab-btn active" onclick="renderTiaoShop('seeds')">🌱 Sementes</button>
-                    <button class="tab-btn" onclick="renderTiaoShop('fert')">🧪 Fertilizantes</button>
-                    <button class="tab-btn" onclick="renderTiaoShop('upgrades')">⚙️ Lotes</button>
-                `;
-                renderTiaoShop('seeds');
-            } else if (npcType === 'mago') {
-                title.innerText = "Altar Místico do Mago";
-                renderMagoShop();
-            } else if (npcType === 'chico') {
-                title.innerText = "Seu Chico Comprador";
-                renderChicoShop();
-            }
-        }
-
-        function renderTiaoShop(section) {
-            let content = document.getElementById('modal-content');
-            content.innerHTML = '';
-            if (section === 'seeds') {
-                currentStoreSeeds.forEach(k => {
-                    let cost = Math.floor(fruitData[k].basePrice * 0.4);
-                    content.innerHTML += `
-                        <div class="shop-item">
-                            <div class="item-info"><span>${fruitData[k].icon}</span> <b>Semente de ${fruitData[k].name}</b> <p>Preço: ${cost}🪙</p></div>
-                            <button class="buy-btn" onclick="buyItem('seed','${k}_semente',${cost})">Comprar</button>
-                        </div>`;
-                });
-            } else if (section === 'fert') {
-                Object.keys(fertData).forEach(key => {
-                    let f = fertData[key];
-                    content.innerHTML += `
-                        <div class="shop-item">
-                            <div class="item-info"><span>${f.icon}</span> <b>${f.name}</b> <p>${f.desc} - Cost: ${f.price}🪙</p></div>
-                            <button class="buy-btn" onclick="buyItem('fertilizer','${key}',${f.price})">Comprar</button>
-                        </div>`;
-                });
-            } else {
-                content.innerHTML = `
-                    <div class="shop-item">
-                        <div class="item-info"><b>Comprar Lote Agrícola (+1 Espaço)</b><p>Custo: 150🪙</p></div>
-                        <button class="buy-btn" onclick="buyItem('upgrade',0,150)">Adquirir</button>
-                    </div>`;
-            }
-        }
-
-        function openBackpackModal() {
-            let modal = document.getElementById('game-modal');
-            modal.style.display = 'block';
-            currentModalNPC = 'mochila';
-            document.getElementById('modal-title').innerText = "🎒 Mochila & Bigorna de Carga";
-            document.getElementById('modal-tabs').innerHTML = `
-                <button class="tab-btn active" onclick="renderInventoryTab()">🎒 Guardados</button>
-                <button class="tab-btn" onclick="renderForgeTab()">🔨 Forja Metalúrgica</button>
-            `;
-            renderInventoryTab();
-        }
-
-        function renderInventoryTab() {
-            let content = document.getElementById('modal-content');
-            content.innerHTML = `
-                <p style='color:#ffd700; margin:0 0 8px 0;'><b>Minérios:</b> 🪨 Ferro: ${minerios.ferro} | ✨ Ouro: ${minerios.ouro}</p>
-                <button class="buy-btn" style="background:#cc7a00; width:100%; margin-bottom:10px;" onclick="sendActiveSlotToBackpack()">📥 Guardar Item Segurado na Mochila</button>
-                <hr style='border-color:#402b1b;'>
-            `;
-            
-            let empty = true;
-            Object.keys(backpack).forEach(key => {
-                let item = backpack[key];
-                if (item.qty > 0) {
-                    empty = false;
-                    let icon = "❓", label = key;
-                    if(item.type==='semente') { icon = fruitData[key.split('_')[0]].icon; label=`Semente de ${key.split('_')[0]} Lvl ${item.level}`; }
-                    if(item.type==='fertilizante') { icon = fertData[key].icon; label=fertData[key].name; }
-                    if(item.type==='fruta') { icon = item.data.icon; label=`Fruta: ${item.data.fullName}`; }
-
-                    content.innerHTML += `
-                        <div class="shop-item">
-                            <div class="item-info"><span>${icon}</span> <b>${label}</b> (x${item.qty})</div>
-                            <button class="buy-btn" onclick="extractToHotbar('${key}')">📤 Puxar p/ Mão</button>
-                        </div>`;
-                }
-            });
-            if(empty) content.innerHTML += "<p style='font-size:11px; color:#aaa;'>Mochila interna vazia.</p>";
-        }
-
-        function extractToHotbar(key) {
-            let item = backpack[key];
-            if (item && item.qty > 0) {
-                item.qty--;
-                if(item.type === 'semente') addItemToCollectedHotbar(key, 'semente', item.level, null);
-                if(item.type === 'fertilizante') addItemToCollectedHotbar(key, 'fertilizante', 1, null);
-                if(item.type === 'fruta') addItemToCollectedHotbar(key, 'fruta', 1, item.data);
-                
-                updateHotbarVisuals();
-                renderInventoryTab();
-            }
-        }
-
-        function renderForgeTab() {
-            let content = document.getElementById('modal-content');
-            content.innerHTML = '';
-            Object.keys(arsenal).forEach(key => {
-                let wep = arsenal[key];
-                let ironCost = wep.level * 4;
-                let goldCost = wep.level * 2;
-                let activeTxt = player.weapon === key ? "⭐ PORTANDO" : "Equipar";
-
-                content.innerHTML += `
-                    <div class="shop-item" style="flex-direction:column; align-items:flex-start; gap:4px;">
-                        <div style="display:flex; justify-content:space-between; width:100%;">
-                            <b>${wep.icon} ${wep.name} (Nvl ${wep.level})</b>
-                            <button class="buy-btn" style="background:#3b5284;" onclick="equipWeapon('${key}')">${activeTxt}</button>
-                        </div>
-                        <p style="font-size:11px; color:#ffcc00; margin:0;">⚔️ Dano Atual: ${wep.damage} | Alcance: ${wep.range}px</p>
-                        <button class="buy-btn" style="width:100%; margin-top:2px; font-size:10px;" onclick="upgradeWeapon('${key}', ${ironCost}, ${goldCost})">
-                            Melhorar Forja (🪨x${ironCost} Ferro | ✨x${goldCost} Ouro)
-                        </button>
-                    </div>`;
-            });
-        }
-
-        function equipWeapon(key) {
-            player.weapon = key;
-            document.getElementById('weapon-render').innerText = arsenal[key].icon;
-            document.getElementById('weapon-status').innerText = arsenal[key].name;
-            renderForgeTab();
-            updateUI();
-        }
-
-        function upgradeWeapon(key, iron, gold) {
-            if (minerios.ferro >= iron && minerios.ouro >= gold) {
-                minerios.ferro -= iron; minerios.ouro -= gold;
-                arsenal[key].level++;
-                arsenal[key].damage = Math.floor(arsenal[key].damage * 1.4);
-                alert(`🔨 Arma aprimorada na bigorna!`);
-                renderForgeTab();
-            } else {
-                alert("Recursos minerais insuficientes!");
-            }
-        }
-
-        function renderMagoShop() {
-            let content = document.getElementById('modal-content');
-            let activeItem = hotbar[gameState.activeHotbarSlot];
-            if (activeItem && activeItem.type === 'semente') {
-                let cost = activeItem.level * 75;
-                content.innerHTML = `
-                    <p>Suba o nível genético/mágico da semente em suas mãos:</p>
-                    <div class="shop-item">
-                        <div class="item-info">🔮 <b>Evoluir Semente</b><p>Atual: Nvl ${activeItem.level} &rarr; Custo: ${cost}🪙</p></div>
-                        <button class="buy-btn" style="background:#50287a;" ${activeItem.level>=5?'disabled':''} onclick="magicUpgrade(${cost})">Melhorar</button>
-                    </div>`;
-            } else {
-                content.innerHTML = "<p style='color:#ff5555;'>Segure um pacote semente na barra rápida primeiro.</p>";
-            }
-        }
-
-        function magicUpgrade(cost) {
-            let activeItem = hotbar[gameState.activeHotbarSlot];
-            if (gameState.coins >= cost && activeItem.level < 5) {
-                gameState.coins -= cost; activeItem.level++;
-                updateUI(); updateHotbarVisuals(); closeModal();
-            }
-        }
-
-        function renderChicoShop() {
-            let content = document.getElementById('modal-content');
-            let barProfit = 0;
-            for (let i = 0; i < 8; i++) {
-                if (hotbar[i] && hotbar[i].type === 'fruta') barProfit += hotbar[i].data.price;
-            }
-            content.innerHTML = `
-                <div style="text-align:center;">
-                    <p>"Compro todas as frutas prontas colhidas alocadas na sua Hotbar!"</p>
-                    <h3 style="color:#ffcc00; margin:10px 0;">Valor da Carga: ${Math.floor(barProfit)} Moedas</h3>
-                    <button class="buy-btn" style="background:#2b5c16; padding:8px 16px;" ${barProfit<=0?'disabled':''} onclick="chicoVenda(${barProfit})">Vender Frutas</button>
-                </div>`;
-        }
-
-        function chicoVenda(profit) {
-            for (let i = 0; i < 8; i++) {
-                if (hotbar[i] && hotbar[i].type === 'fruta') hotbar[i] = { id: null, qty: 0, type: '', level: 0, data: null };
-            }
-            gameState.coins += profit;
-            updateUI(); updateHotbarVisuals(); closeModal();
-        }
-
-        function refreshShopSeeds() {
-            currentStoreSeeds = []; Object.keys(fruitData).forEach(k => { if(k!=='divina') currentStoreSeeds.push(k); });
-        }
-
-        function updateUI() {
-            document.getElementById('coin-count').innerText = Math.floor(gameState.coins);
-            let hpPct = (player.hp / player.maxHp) * 100;
-            document.getElementById('hp-bar').style.width = `${hpPct}%`;
-            document.getElementById('hp-text').innerText = `HP: ${Math.max(0, Math.floor(player.hp))} / ${player.maxHp}`;
-
-            let item = hotbar[gameState.activeHotbarSlot];
-            if(item && item.id) {
-                if (item.type === 'semente') document.getElementById('selected-seed-text').innerText = `Semente de ${item.id.split('_')[0]} L. ${item.level} (x${item.qty})`;
-                else if (item.type === 'fertilizante') document.getElementById('selected-seed-text').innerText = `${fertData[item.id].name} (x${item.qty})`;
-                else if (item.type === 'fruta') document.getElementById('selected-seed-text').innerText = `${item.data.fullName} madura`;
-                else document.getElementById('selected-seed-text').innerText = `Minério bruto`;
-            } else {
-                document.getElementById('selected-seed-text').innerText = "Mão Vazia";
-            }
-        }
-
-        function buyItem(type, target, cost) {
-            if (gameState.coins >= cost) {
-                if (type === 'seed') addItemToCollectedHotbar(target, 'semente', 1, null);
-                else if (type === 'fertilizer') addItemToCollectedHotbar(target, 'fertilizante', 1, null);
-                else if (type === 'upgrade' && gameState.maxPlots < 15) { gameState.maxPlots++; createPlots(); }
-                
-                gameState.coins -= cost; updateUI(); updateHotbarVisuals();
-            }
-        }
-
-        function closeModal() { document.getElementById('game-modal').style.display = 'none'; currentModalNPC = null; }
-
-        function gameLoop() {
-            let sp = player.speed;
-            if (keysPressed['a'] || keysPressed['arrowleft']) player.x -= sp;
-            if (keysPressed['d'] || keysPressed['arrowright']) player.x += sp;
-            if (keysPressed['w'] || keysPressed['arrowup']) player.y -= sp;
-            if (keysPressed['s'] || keysPressed['arrowdown']) player.y += sp;
-            
-            player.x = Math.max(0, Math.min(window.innerWidth - 45, player.x));
-            player.y = Math.max(0, Math.min(window.innerHeight - 135, player.y));
-
-            let pEl = document.getElementById('player');
-            if (pEl) { pEl.style.left = player.x + 'px'; pEl.style.top = player.y + 'px'; }
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        window.onload = init;
-    </script>
-</body>
-</html>
+                        spawnProjectile(ent.x, ent.y
